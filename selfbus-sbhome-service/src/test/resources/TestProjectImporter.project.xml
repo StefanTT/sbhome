@@ -8,6 +8,18 @@
   <group id="light-1" addr="1/0/100" dataType="boolean" category="light" />
   <group id="light-2" addr="1/0/101" dataType="byte_1" category="light" />
  </groups>
+ <programs>
+  <program id="light-logic-1">
+   <connectors>
+    <input name="in1" group="light-1" />
+    <input name="in2" group="light-2" />
+    <output name="out" group="light-4" />
+   </connectors>
+   <code>
+    out = in1 | in2
+   </code>
+  </program>
+ </programs>
  <rooms>
   <room id="living" label="Living Room">
    <item label="Central light" group="light-1" />

@@ -9,6 +9,7 @@ import org.selfbus.sbhome.model.gui.ItemController;
 import org.selfbus.sbhome.model.gui.LabelDecl;
 import org.selfbus.sbhome.model.gui.LayoutElement;
 import org.selfbus.sbhome.model.gui.PanelDecl;
+import org.selfbus.sbhome.model.gui.TelegramHistoryDecl;
 import org.selfbus.sbhome.model.gui.generator.Foreach;
 import org.selfbus.sbhome.model.gui.layout.AbsoluteLayoutDecl;
 import org.selfbus.sbhome.model.gui.layout.AbstractLayoutDecl;
@@ -16,6 +17,7 @@ import org.selfbus.sbhome.model.gui.layout.HorizontalLayoutDecl;
 import org.selfbus.sbhome.model.gui.layout.VerticalLayoutDecl;
 import org.selfbus.sbhome.process.Context;
 import org.selfbus.sbhome.web.SbHomeApplication;
+import org.selfbus.sbhome.web.guifactory.component.TelegramHistory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,6 +214,11 @@ public class ComponentFactory
       else if (elem instanceof ItemController)
       {
          comp = itemCreator.createController(ctx, (ItemController) elem);
+      }
+      else if (elem instanceof TelegramHistoryDecl)
+      {
+         TelegramHistory e = new TelegramHistory((TelegramHistoryDecl) elem);
+         comp = e.getComponent();
       }
       else
       {

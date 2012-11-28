@@ -6,9 +6,23 @@
  </categories>
  <groups>
   <group id="light-1" addr="1/0/100" dataType="boolean" category="light" />
-  <group id="light-2" addr="1/0/101" dataType="byte_1"  category="light" />
-  <group id="light-3" addr="1/0/200" dataType="boolean" category="light" />
+  <group id="light-2" addr="1/0/101" dataType="byte_1" category="light" />
+  <group id="light-3" addr="1/0/102" dataType="boolean" category="light" />
+  <group id="light-4" dataType="boolean" category="light" />
+  <group id="light-11" addr="1/0/200" dataType="boolean" category="light" />
  </groups>
+ <programs>
+  <program id="light-logic-1">
+   <connectors>
+    <input name="in1" group="light-1" />
+    <input name="in2" group="light-2" />
+    <output name="out" group="light-4" />
+   </connectors>
+   <code>
+    out = in1 | in2
+   </code>
+  </program>
+ </programs>
  <rooms>
   <room id="living" label="Wohnzimmer">
    <item label="Raumlicht" group="light-1" />
@@ -18,10 +32,10 @@
    <item label="Raumlicht" group="light-1" />
   </room>
   <room id="entrance" label="Eingang">
-   <item label="Raumlicht" group="light-2" />
+   <item label="Raumlicht" group="light-3" />
   </room>
   <room id="garage" label="Garage">
-   <item label="Raumlicht" group="light-3" />
+   <item label="Raumlicht" group="light-11" />
   </room>
  </rooms>
  <panels>
@@ -83,6 +97,8 @@
       </button>
      </horizontalLayout>
     </foreach>
+    <label text="" />
+    <telegramHistory />
    </verticalLayout>
   </panel>
   <panel id="roomPanel" title="${room.label}">

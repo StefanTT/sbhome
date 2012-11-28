@@ -1,8 +1,10 @@
 package org.selfbus.sbhome.model;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -16,6 +18,7 @@ import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
 import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.PanelDecl;
+import org.selfbus.sbhome.model.program.Program;
 
 /**
  * A project.
@@ -35,6 +38,7 @@ public class Project
    private Map<String, Category> categories;
    private Map<String, Room> rooms;
    private List<PanelDecl> panels;
+   private Set<Program> programs;
 
    /**
     * Gets the value of the name property.
@@ -174,6 +178,29 @@ public class Project
 
       this.groups = newGroups;
       this.groupsByName = newGroupsByName;
+   }
+
+   /**
+    * @return The programs.
+    */
+   @XmlElementWrapper(name = "programs")
+   @XmlElement(name = "program")
+   public synchronized Set<Program> getPrograms()
+   {
+      if (programs == null)
+         programs = new HashSet<Program>();
+
+      return programs;
+   }
+
+   /**
+    * Set the programs.
+    *
+    * @param programs - the programs to set
+    */
+   public void setPrograms(Set<Program> programs)
+   {
+      this.programs = programs;
    }
 
    /**

@@ -2,11 +2,11 @@ package org.selfbus.sbhome.service;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlEngine;
 import org.freebus.fts.common.address.Address;
 import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.BusInterface;
@@ -19,6 +19,8 @@ import org.freebus.knxcomm.telegram.TelegramListener;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.ProjectImporter;
 import org.selfbus.sbhome.model.group.Group;
+import org.selfbus.sbhome.model.program.AbstractProgramConnector;
+import org.selfbus.sbhome.model.program.Program;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,7 @@ public class Daemon
 
    private Project project;
    private BusInterface busInterface;
+   private final JexlEngine jexl = new JexlEngine();
    private final EventDispatcher eventDispatcher = new EventDispatcher();
    private final Queue<Telegram> telegramHistory = new ConcurrentLinkedQueue<Telegram>();
    private int historySize = 20;
@@ -56,6 +59,10 @@ public class Daemon
    Daemon()
    {
       LOGGER.debug("Daemon created");
+
+      jexl.setCache(256);
+      jexl.setLenient(false);
+      jexl.setSilent(false);
 
       setupBusInterface();
 
@@ -146,16 +153,29 @@ public class Daemon
    }
 
    /**
+    * @return The telegram history. This history stores the latest x telegrams.
+    */
+   public Queue<Telegram> getTelegramHistory()
+   {
+      return telegramHistory;
+   }
+
+   /**
     * If the telegram is a {@link ApplicationType#GroupValue_Write} or
     * {@link ApplicationType#GroupValue_Response} telegram, then store the value of the telegram in
     * the internal group-value cache.
     * 
     * @param telegram - the telegram
     */
-   protected void storeGroupValue(Telegram telegram)
+   protected synchronized void storeGroupValue(Telegram telegram)
    {
       ApplicationType type = telegram.getApplicationType();
       Address dest = telegram.getDest();
+
+      telegramHistory.add(telegram.clone());
+
+      while (telegramHistory.size() > historySize)
+         telegramHistory.poll();
 
       if (project != null && dest instanceof GroupAddress
          && (type.equals(ApplicationType.GroupValue_Write) || type.equals(ApplicationType.GroupValue_Response)))
@@ -187,6 +207,7 @@ public class Daemon
       final Project project = importer.readProject(in);
 
       this.project = project;
+      initPrograms();
    }
 
    /**
@@ -195,5 +216,30 @@ public class Daemon
    public BusInterface getBusInterface()
    {
       return busInterface;
+   }
+
+   /**
+    * Initialize the project's programs.
+    */
+   public void initPrograms()
+   {
+      for (Program program : project.getPrograms())
+         initProgram(program);
+   }
+
+   /**
+    * Initialize a program.
+    * 
+    * @param program - the program to initialize
+    */
+   protected void initProgram(Program program)
+   {
+      Expression expr = jexl.createExpression(program.getCode());
+      program.setExpression(expr);
+
+      for (AbstractProgramConnector connector: program.getConnectors())
+      {
+         // TODO
+      }
    }
 }

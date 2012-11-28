@@ -171,7 +171,7 @@ public class TriggerCreator
     */
    public void performActions(final Context ctx, AbstractComponent comp, final AbstractTriggerDecl trigger)
    {
-      LOGGER.info("Performing actions");
+      //LOGGER.info("Performing actions");
 
       for (final AbstractActionDecl action : trigger.getActions())
          performAction(ctx, comp, action);

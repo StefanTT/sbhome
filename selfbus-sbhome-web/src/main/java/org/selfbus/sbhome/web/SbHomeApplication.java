@@ -112,7 +112,7 @@ public class SbHomeApplication extends Application
       bodyLayout.addComponent(navbar);
 
       mainSplitPanel = new HorizontalSplitPanel();
-      mainSplitPanel.setHeight(400, Sizeable.UNITS_PIXELS);
+      mainSplitPanel.setHeight(500, Sizeable.UNITS_PIXELS);
       bodyLayout.addComponent(mainSplitPanel);
 
       // The hidden progress indicator pulls GUI updates in regular intervals.
@@ -142,7 +142,7 @@ public class SbHomeApplication extends Application
       if (panelDecl != null)
       {
          panel = componentFactory.createPanel(null, panelDecl);
-         panel.setHeight(400, Sizeable.UNITS_PIXELS);
+         panel.setHeight(500, Sizeable.UNITS_PIXELS);
          mainSplitPanel.addComponent(panel);
       }
 
@@ -150,7 +150,7 @@ public class SbHomeApplication extends Application
       if (panelDecl != null)
       {
          panel = componentFactory.createPanel(null, panelDecl);
-         panel.setHeight(400, Sizeable.UNITS_PIXELS);
+         panel.setHeight(500, Sizeable.UNITS_PIXELS);
          mainSplitPanel.addComponent(panel);
       }
    }
@@ -162,7 +162,7 @@ public class SbHomeApplication extends Application
     */
    public void setContent(AbstractComponent content)
    {
-      content.setHeight(400, Sizeable.UNITS_PIXELS);
+      content.setHeight(500, Sizeable.UNITS_PIXELS);
       mainSplitPanel.setFirstComponent(content);
    }
 
