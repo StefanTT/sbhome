@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.web.guifactory.controller;
+package org.selfbus.sbhome.web.guifactory.control;
 
 import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.application.GroupValueWrite;

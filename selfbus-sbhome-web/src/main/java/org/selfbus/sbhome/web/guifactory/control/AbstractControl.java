@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.web.guifactory.controller;
+package org.selfbus.sbhome.web.guifactory.control;
 
 
 /**

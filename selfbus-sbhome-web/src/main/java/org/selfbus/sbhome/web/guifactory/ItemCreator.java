@@ -7,8 +7,8 @@ import org.selfbus.sbhome.model.group.DataType;
 import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.ItemController;
 import org.selfbus.sbhome.process.Context;
-import org.selfbus.sbhome.web.guifactory.controller.BooleanControl;
-import org.selfbus.sbhome.web.guifactory.controller.GenericControl;
+import org.selfbus.sbhome.web.guifactory.control.BooleanControl;
+import org.selfbus.sbhome.web.guifactory.control.GenericControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

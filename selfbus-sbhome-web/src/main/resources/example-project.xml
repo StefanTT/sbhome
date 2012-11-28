@@ -6,7 +6,7 @@
  </categories>
  <groups>
   <group id="light-1" addr="1/0/100" dataType="boolean" category="light" />
-  <group id="light-2" addr="1/0/101" dataType="byte_1" category="light" />
+  <group id="light-2" addr="1/0/101" dataType="byte_1"  category="light" />
   <group id="light-3" addr="1/0/200" dataType="boolean" category="light" />
  </groups>
  <rooms>
@@ -35,7 +35,8 @@
       </onClick>
      </button>
     </foreach>
-    <label text="Kategorien" height="30" />
+    <label text="" />
+    <label text="Kategorien" />
     <foreach var="categoryId" items="category">
      <button text="${category.label}" width="300">
       <onClick>
@@ -50,14 +51,34 @@
     <foreach var="group" items="group">
      <horizontalLayout>
       <label text="Sende Telegramm an ${group.id}" width="200" />
+      <button text="0">
+       <onClick>
+        <sendTelegram group="${group}" value="0" />
+       </onClick>
+      </button>
       <button text="1">
        <onClick>
         <sendTelegram group="${group}" value="1" />
        </onClick>
       </button>
-      <button text="0">
+      <button text="10">
        <onClick>
-        <sendTelegram group="${group}" value="0" />
+        <sendTelegram group="${group}" value="10" />
+       </onClick>
+      </button>
+      <button text="50">
+       <onClick>
+        <sendTelegram group="${group}" value="50" />
+       </onClick>
+      </button>
+      <button text="100">
+       <onClick>
+        <sendTelegram group="${group}" value="100" />
+       </onClick>
+      </button>
+      <button text="255">
+       <onClick>
+        <sendTelegram group="${group}" value="255" />
        </onClick>
       </button>
      </horizontalLayout>
