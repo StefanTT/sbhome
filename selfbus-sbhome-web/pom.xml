@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <modelVersion>4.0.0</modelVersion>
+ <parent>
+  <artifactId>selfbus-sbhome</artifactId>
+  <groupId>org.selfbus.sbhome</groupId>
+  <version>0.1-SNAPSHOT</version>
+  <relativePath>..</relativePath>
+ </parent>
+ <artifactId>selfbus-sbhome-web</artifactId>
+ <packaging>war</packaging>
+ <name>Selfbus Home Server Web Frontend</name>
+
+ <dependencies>
+  <dependency>
+   <groupId>org.selfbus.sbhome</groupId>
+   <artifactId>selfbus-sbhome-service</artifactId>
+   <version>0.1-SNAPSHOT</version>
+  </dependency>
+  <dependency>
+   <groupId>com.vaadin</groupId>
+   <artifactId>vaadin</artifactId>
+   <version>6.8.5</version>
+  </dependency>
+ </dependencies>
+
+ <repositories>
+  <repository>
+   <id>vaadin-releases</id>
+   <url>http://oss.sonatype.org/content/repositories/vaadin-releases</url>
+   <releases>
+    <enabled>true</enabled>
+   </releases>
+   <snapshots>
+    <enabled>false</enabled>
+   </snapshots>
+  </repository>
+  <repository>
+   <id>vaadin-addons</id>
+   <url>http://maven.vaadin.com/vaadin-addons</url>
+   <releases>
+    <enabled>true</enabled>
+   </releases>
+   <snapshots>
+    <enabled>false</enabled>
+   </snapshots>
+  </repository>
+ </repositories>
+
+</project>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<project name="Example Project" startPanel="leftMainPanel">
+ <categories>
+  <category id="light" label="Beleuchtung" />
+  <category id="heating" label="Heizung" />
+ </categories>
+ <groups>
+  <group id="light-1" addr="1/0/100" dataType="boolean" category="light" />
+  <group id="light-2" addr="1/0/101" dataType="byte_1" category="light" />
+  <group id="light-3" addr="1/0/200" dataType="boolean" category="light" />
+ </groups>
+ <rooms>
+  <room id="living" label="Wohnzimmer">
+   <item label="Raumlicht" group="light-1" />
+   <item label="Hintergrund Beleuchtung" group="light-2" />
+  </room>
+  <room id="dining" label="Esszimmer">
+   <item label="Raumlicht" group="light-1" />
+  </room>
+  <room id="entrance" label="Eingang">
+   <item label="Raumlicht" group="light-2" />
+  </room>
+  <room id="garage" label="Garage">
+   <item label="Raumlicht" group="light-3" />
+  </room>
+ </rooms>
+ <panels>
+  <panel id="leftMainPanel" title="Übersicht">
+   <verticalLayout width="300">
+    <label text="Räume" />
+    <foreach var="room" items="room">
+     <button text="${room.label}" width="300">
+      <onClick>
+       <showPanel panel="roomPanel" />
+      </onClick>
+     </button>
+    </foreach>
+    <label text="Kategorien" height="30" />
+    <foreach var="categoryId" items="category">
+     <button text="${category.label}" width="300">
+      <onClick>
+       <showPanel panel="categoryPanel" />
+      </onClick>
+     </button>
+    </foreach>
+   </verticalLayout>
+  </panel>
+  <panel id="rightMainPanel" title="Test Konsole">
+   <verticalLayout>
+    <foreach var="group" items="group">
+     <horizontalLayout>
+      <label text="Sende Telegramm an ${group.id}" width="200" />
+      <button text="1">
+       <onClick>
+        <sendTelegram group="${group}" value="1" />
+       </onClick>
+      </button>
+      <button text="0">
+       <onClick>
+        <sendTelegram group="${group}" value="0" />
+       </onClick>
+      </button>
+     </horizontalLayout>
+    </foreach>
+   </verticalLayout>
+  </panel>
+  <panel id="roomPanel" title="${room.label}">
+   <verticalLayout width="300">
+    <foreach var="item" items="item">
+     <itemController item="${item}" />
+    </foreach>
+   </verticalLayout>
+  </panel>
+  <panel id="categoryPanel" title="${category.label}">
+   <verticalLayout width="400">
+    <foreach var="item" items="item">
+     <itemController item="${item}" label="${room.label} - ${item.label}" />
+    </foreach>
+   </verticalLayout>
+  </panel>
+ </panels>
+</project>

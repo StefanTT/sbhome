@@ -1,0 +1,15 @@
+.navbar {
+   border-bottom: 1px solid #444;
+}
+
+.invisible {
+   display: none;
+}
+
+.v-button-wrap {
+   vertical-align: bottom;
+}
+
+.switch {
+   min-width: 4em;
+}

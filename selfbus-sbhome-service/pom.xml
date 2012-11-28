@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+ <modelVersion>4.0.0</modelVersion>
+ <parent>
+  <artifactId>selfbus-sbhome</artifactId>
+  <groupId>org.selfbus.sbhome</groupId>
+  <version>0.1-SNAPSHOT</version>
+ </parent>
+ <artifactId>selfbus-sbhome-service</artifactId>
+ <name>Selfbus Home Server Backend</name>
+
+ <build>
+  <plugins>
+   <!-- If m2eclipse complains about this plugin, you probably have to install the "m2e Connector for JAXB" from https://github.com/hwellmann/m2eclipse-extras/raw/master/p2 -->
+   <plugin>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>jaxb2-maven-plugin</artifactId>
+    <version>1.5</version>
+    <executions>
+     <execution>
+      <goals>
+       <goal>schemagen</goal>
+      </goals>
+      <!-- <phase>generate-resources</phase> -->
+      <phase>generate-sources</phase>
+      <configuration>
+       <includes>
+        <include>org/selfbus/sbhome/model/*.java</include>
+       </includes>
+      </configuration>
+     </execution>
+    </executions>
+   </plugin>
+  </plugins>
+ </build>
+
+ <dependencies>
+  <dependency>
+   <groupId>junit</groupId>
+   <artifactId>junit</artifactId>
+   <scope>test</scope>
+  </dependency>
+  <dependency>
+   <groupId>org.freebus.fts</groupId>
+   <artifactId>freebus-fts-knxcomm</artifactId>
+   <version>0.2-SNAPSHOT</version>
+  </dependency>
+ </dependencies>
+
+</project>
+
