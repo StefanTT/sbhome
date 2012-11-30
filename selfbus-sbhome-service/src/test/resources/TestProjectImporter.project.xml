@@ -5,11 +5,17 @@
   <category id="heating" label="Heating" />
  </categories>
  <groups>
-  <group id="light-1" addr="1/0/100" dataType="boolean" category="light" />
-  <group id="light-2" addr="1/0/101" dataType="byte_1" category="light" />
+  <group id="light.all" addr="1/0/100" dataType="bool" category="light" />
+  <group id="light.1" addr="1/0/101" dataType="bool" category="light" />
+  <group id="light.2" addr="1/0/102" dataType="unsigned byte" category="light" />
  </groups>
+<!--  <functions>
+  <function name="lightAll">
+  </function>
+ </functions>
+ -->
  <programs>
-  <program id="light-logic-1">
+  <program id="lightLogic1">
    <connectors>
     <input name="in1" group="light-1" />
     <input name="in2" group="light-2" />
@@ -22,18 +28,18 @@
  </programs>
  <rooms>
   <room id="living" label="Living Room">
-   <item label="Central light" group="light-1" />
-   <item label="Background light" group="light-2" />
+   <item label="Central light" group="light.1" />
+   <item label="Background light" group="light.2" />
   </room>
  </rooms>
  <panels>
   <panel id="mainPanel">
    <horizontalLayout>
     <verticalLayout width="200">
-     <foreach var="roomId" items="rooms">
+     <foreach var="room" items="rooms">
       <button text="${room.label}" />
      </foreach>
-     <foreach var="categoryId" items="categories">
+     <foreach var="category" items="categories">
       <button text="${category.label}" />
      </foreach>
     </verticalLayout>

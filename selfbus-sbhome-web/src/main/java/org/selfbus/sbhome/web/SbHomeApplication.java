@@ -5,12 +5,14 @@ import java.io.IOException;
 
 import org.apache.commons.jexl2.JexlEngine;
 import org.freebus.fts.common.SimpleConfig;
+import org.selfbus.sbhome.misc.ScriptUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.gui.PanelDecl;
 import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.web.guifactory.ComponentFactory;
 import org.selfbus.sbhome.web.guifactory.Evaluator;
 import org.selfbus.sbhome.web.misc.I18n;
+import org.selfbus.sbhome.web.panels.SettingsPanel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +44,7 @@ public class SbHomeApplication extends Application
    private static final long serialVersionUID = -1821682921589068770L;
    private static final SimpleConfig CONFIG = new SimpleConfig();
    
-   private final JexlEngine jexl = new JexlEngine();
+   private final JexlEngine jexl = ScriptUtils.createJexlEngine();
    private final Evaluator evaluator = new Evaluator(jexl);
    private ComponentFactory componentFactory;
    private AbstractSplitPanel mainSplitPanel;
@@ -66,10 +68,6 @@ public class SbHomeApplication extends Application
    public SbHomeApplication() throws FileNotFoundException, IOException
    {
       LOGGER.info("Application created");
-
-      jexl.setCache(256);
-      jexl.setLenient(false);
-      jexl.setSilent(false);
    }
 
    /**
@@ -89,12 +87,20 @@ public class SbHomeApplication extends Application
    }
 
    /**
+    * @return The global configuration.
+    */
+   public static SimpleConfig getConfig()
+   {
+      return CONFIG;
+   }
+
+   /**
     * {@inheritDoc}
     */
    @Override
    public void init()
    {
-      setTheme("fbhome-dark");
+      setTheme("sbhome-black");
 
       final Daemon daemon = Daemon.getInstance();
       project = daemon.getProject();
@@ -171,10 +177,14 @@ public class SbHomeApplication extends Application
     */
    protected AbstractComponentContainer createNavbar()
    {
+      Button btn;
+
       HorizontalLayout navbar = new HorizontalLayout();
+      navbar.setStyleName("segment");
       navbar.addStyleName("navbar");
 
-      Button btn = new Button(I18n.getMessage("Button.home"));
+      btn = new Button(I18n.getMessage("Button.home"));
+      btn.addStyleName("first");
       navbar.addComponent(btn);
       btn.addListener(new ClickListener()
       {
@@ -189,6 +199,7 @@ public class SbHomeApplication extends Application
       });
 
       btn = new Button(I18n.getMessage("Button.settings"));
+      btn.addStyleName("last");
       navbar.addComponent(btn);
       navbar.setComponentAlignment(btn, Alignment.MIDDLE_RIGHT);
       btn.addListener(new ClickListener()

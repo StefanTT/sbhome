@@ -1,5 +1,5 @@
 @import "../chameleon/styles.css";
-@import "../fbhome-common.css";
+@import "../sbhome-common.css";
 
 /** 
  * "optional-" prefix means that the style is not necessarily used, it can be left blank
@@ -9,7 +9,7 @@
 
 /* Application background */
 .v-app {
-	background: rgb(60,60,60);
+	background: rgb(45,45,45);
 	}
 
 .v-window,
@@ -146,6 +146,7 @@ td.v-datefield-calendarpanel-month,
 .v-datefield-calendarpanel-weekdays strong,
 .v-slider-handle,
 .v-table-header-wrap,
+.v-table-generated-row,
 .v-table-header-drag,
 .v-filterselect-prevpage-off,
 .v-filterselect-nextpage-off,
@@ -182,6 +183,7 @@ td.v-datefield-calendarpanel-month,
 .v-slider-handle,
 .v-tabsheet-tabitem-selected .v-caption,
 .v-table-header-wrap,
+.v-table-generated-row,
 .v-table-header-drag,
 .v-filterselect-prevpage-off,
 .v-filterselect-nextpage-off,
@@ -294,6 +296,7 @@ td.v-datefield-calendarpanel-month,
 .v-ie7 .v-button-default.v-pressed .v-button-wrap,
 .v-ie8 .v-button-default.v-pressed .v-button-wrap,
 .v-progressindicator-indicator,
+.v-datefield-calendarpanel-day-focused,
 .v-datefield-calendarpanel-day:hover,
 .v-horizontallayout-segment-alternate .v-button-down .v-button-wrap {
 	border-color: rgb(86,108,143);

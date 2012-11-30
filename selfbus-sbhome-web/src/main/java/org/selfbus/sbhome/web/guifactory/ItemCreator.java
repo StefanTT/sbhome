@@ -1,9 +1,9 @@
 package org.selfbus.sbhome.web.guifactory;
 
 import org.apache.commons.lang3.Validate;
+import org.freebus.knxcomm.application.DataPointType;
 import org.selfbus.sbhome.model.Item;
 import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.group.DataType;
 import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.ItemController;
 import org.selfbus.sbhome.process.Context;
@@ -56,15 +56,15 @@ public class ItemCreator
       Group group = project.getGroup(groupRef);
       Validate.notNull(item, "Group not found: " + groupRef);
 
-      DataType dataType = group.getDataType();
-      if (DataType.BOOLEAN.equals(dataType))
+      DataPointType dataType = group.getDataType();
+      if (DataPointType.BOOL.equals(dataType))
       {
          BooleanControl controller = new BooleanControl(ctx, itemController, item, group, evaluator);
          return controller.getComponent();
       }
       else
       {
-         LOGGER.warn("Invalid group data-type: {}", dataType.getName());
+         LOGGER.warn("Invalid group data-type: {}", dataType.toString());
          GenericControl controller = new GenericControl(ctx, itemController, item, group, evaluator);
          return controller.getComponent();
       }

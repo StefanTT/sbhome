@@ -10,6 +10,7 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
+import org.selfbus.sbhome.model.Identified;
 import org.selfbus.sbhome.model.Namespaces;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
 import org.selfbus.sbhome.model.trigger.ClickTriggerDecl;
@@ -21,7 +22,7 @@ import org.selfbus.sbhome.model.trigger.TelegramTriggerDecl;
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class AbstractComponentDecl implements LayoutElement
+public abstract class AbstractComponentDecl implements LayoutElement, Identified
 {
    @XmlAttribute(name = "id")
    private String id;
@@ -49,6 +50,7 @@ public abstract class AbstractComponentDecl implements LayoutElement
    /**
     * @return the ID
     */
+   @Override
    public String getId()
    {
       return id;

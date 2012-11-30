@@ -1,6 +1,7 @@
 package org.selfbus.sbhome.service;
 
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -12,10 +13,16 @@ import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.BusInterface;
 import org.freebus.knxcomm.BusInterfaceFactory;
 import org.freebus.knxcomm.application.ApplicationType;
+import org.freebus.knxcomm.application.DataPointType;
 import org.freebus.knxcomm.application.GenericDataApplication;
+import org.freebus.knxcomm.application.GroupValueWrite;
+import org.freebus.knxcomm.link.netip.KNXnetLink;
 import org.freebus.knxcomm.link.serial.SerialPortException;
 import org.freebus.knxcomm.telegram.Telegram;
 import org.freebus.knxcomm.telegram.TelegramListener;
+import org.freebus.knxcomm.types.LinkMode;
+import org.selfbus.sbhome.internal.I18n;
+import org.selfbus.sbhome.misc.ScriptUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.ProjectImporter;
 import org.selfbus.sbhome.model.group.Group;
@@ -34,7 +41,7 @@ public class Daemon
 
    private Project project;
    private BusInterface busInterface;
-   private final JexlEngine jexl = new JexlEngine();
+   private final JexlEngine jexl = ScriptUtils.createJexlEngine();
    private final EventDispatcher eventDispatcher = new EventDispatcher();
    private final Queue<Telegram> telegramHistory = new ConcurrentLinkedQueue<Telegram>();
    private int historySize = 20;
@@ -60,10 +67,6 @@ public class Daemon
    {
       LOGGER.debug("Daemon created");
 
-      jexl.setCache(256);
-      jexl.setLenient(false);
-      jexl.setSilent(false);
-
       setupBusInterface();
 
       try
@@ -86,39 +89,27 @@ public class Daemon
    void setupBusInterface()
    {
       final String portName = "/dev/ttyUSB0";
+      BusInterface iface;
 
       try
       {
-         busInterface = BusInterfaceFactory.newSerialInterface(portName);
-         LOGGER.info("Using serial bus interface, port {}", portName);
+         //iface = BusInterfaceFactory.newSerialInterface(portName);
+         //LOGGER.info("Using serial bus interface, port {}", portName);
+
+         iface = BusInterfaceFactory.newKNXnetInterface("localhost", KNXnetLink.defaultPortUDP);
+         iface.open(LinkMode.BusMonitor);
+
+         LOGGER.info("Using KNXnet/IP bus interface");
       }
-      catch (SerialPortException e)
+      catch (SerialPortException | IOException e)
       {
          LOGGER.warn(e.getMessage());
 
          LOGGER.info("Using simulated bus interface");
-         busInterface = BusInterfaceFactory.newDummyInterface();
+         iface = null; // BusInterfaceFactory.newDummyInterface();
       }
 
-      busInterface.addListener(new TelegramListener()
-      {
-         @Override
-         public void telegramSent(Telegram telegram)
-         {
-            if (telegram.getDest() instanceof GroupAddress)
-               storeGroupValue(telegram);
-         }
-
-         @Override
-         public void telegramReceived(Telegram telegram)
-         {
-            if (telegram.getDest() instanceof GroupAddress)
-            {
-               storeGroupValue(telegram);
-               eventDispatcher.telegramReceived(telegram);
-            }
-         }
-      });
+      setBusInterface(iface);
    }
 
    /**
@@ -142,14 +133,47 @@ public class Daemon
     * 
     * @param telegram - the telegram to send.
     */
-   public void sendTelegram(Telegram telegram)
+   protected void sendTelegram(Telegram telegram)
    {
-      // TODO implement real sending
+      if (telegram.getDest() != null && busInterface != null)
+      {
+         try
+         {
+            busInterface.send(telegram);
+         }
+         catch (IOException e)
+         {
+            throw new RuntimeException(I18n.formatMessage("Daemon.errSendTelegram", e.getMessage()));
+         }
+      }
+      else
+      {
+         if (telegram.getDest() instanceof GroupAddress)
+            storeGroupValue(telegram);
 
-      if (telegram.getDest() instanceof GroupAddress)
-         storeGroupValue(telegram);
+         eventDispatcher.telegramReceived(telegram);
+      }
+   }
 
-      eventDispatcher.telegramReceived(telegram);
+   /**
+    * Send a {@link ApplicationType#GroupValue_Write group-value write} telegram
+    *
+    * @param dest - the destination group address
+    * @param dataType - the data type
+    * @param data - the data value
+    */
+   public void sendTelegram(GroupAddress dest, DataPointType dataType, byte[] data)
+   {
+      GroupValueWrite app = new GroupValueWrite();
+
+      if (dataType.isUsingApci())
+         app.setApciData(data);
+      else app.setData(data);
+
+      Telegram telegram = new Telegram(app);
+      telegram.setDest(dest);
+      
+      sendTelegram(telegram);
    }
 
    /**
@@ -170,21 +194,27 @@ public class Daemon
    protected synchronized void storeGroupValue(Telegram telegram)
    {
       ApplicationType type = telegram.getApplicationType();
+
       Address dest = telegram.getDest();
+      if (!(dest instanceof GroupAddress) || project == null)
+         return;
 
       telegramHistory.add(telegram.clone());
 
       while (telegramHistory.size() > historySize)
          telegramHistory.poll();
 
-      if (project != null && dest instanceof GroupAddress
-         && (type.equals(ApplicationType.GroupValue_Write) || type.equals(ApplicationType.GroupValue_Response)))
+      if (type.equals(ApplicationType.GroupValue_Write) || type.equals(ApplicationType.GroupValue_Response))
       {
          GenericDataApplication app = (GenericDataApplication) telegram.getApplication();
-         Group group = project.getGroup((GroupAddress) dest);
 
-         if (group != null)
-            group.setValue(app.getData());
+         Group group = project.getGroup((GroupAddress) dest);
+         if (group == null)
+            return;
+
+         if (group.getDataType().isUsingApci())
+            group.setValue(app.getApciData());
+         else group.setValue(app.getData());
       }
    }
 
@@ -219,6 +249,22 @@ public class Daemon
    }
 
    /**
+    * Set the bus interface.
+    * 
+    * @param iface - the bus interface to set
+    */
+   public void setBusInterface(BusInterface iface)
+   {
+      if (this.busInterface != null)
+         this.busInterface.removeListener(telegramListener);
+
+      this.busInterface = iface;
+
+      if (this.busInterface != null)
+         this.busInterface.addListener(telegramListener);
+   }
+
+   /**
     * Initialize the project's programs.
     */
    public void initPrograms()
@@ -237,9 +283,31 @@ public class Daemon
       Expression expr = jexl.createExpression(program.getCode());
       program.setExpression(expr);
 
-      for (AbstractProgramConnector connector: program.getConnectors())
+      for (AbstractProgramConnector connector : program.getConnectors())
       {
          // TODO
       }
    }
+
+   private final TelegramListener telegramListener = new TelegramListener()
+   {
+      @Override
+      public void telegramSent(Telegram telegram)
+      {
+         LOGGER.debug("Telegram sent: {}", telegram);
+         if (telegram.getDest() instanceof GroupAddress)
+            storeGroupValue(telegram);
+      }
+
+      @Override
+      public void telegramReceived(Telegram telegram)
+      {
+         LOGGER.debug("Telegram received: {}", telegram);
+         if (telegram.getDest() instanceof GroupAddress)
+         {
+            storeGroupValue(telegram);
+            eventDispatcher.telegramReceived(telegram);
+         }
+      }
+   };
 }

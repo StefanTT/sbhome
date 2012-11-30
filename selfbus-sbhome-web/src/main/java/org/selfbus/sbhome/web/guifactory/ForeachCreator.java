@@ -3,6 +3,7 @@ package org.selfbus.sbhome.web.guifactory;
 import java.util.List;
 import java.util.Vector;
 
+import org.selfbus.sbhome.misc.SortUtils;
 import org.selfbus.sbhome.model.Category;
 import org.selfbus.sbhome.model.Item;
 import org.selfbus.sbhome.model.Project;
@@ -41,32 +42,33 @@ public class ForeachCreator
     */
    public void createElements(Context ctx, Foreach decl, ComponentProcessor proc)
    {
+      String varName = decl.getVar();
       String type = decl.getItems();
       List<AbstractComponentDecl> childs = decl.getChilds();
 
-      if ("room".equals(type))
+      if ("rooms".equals(type))
       {
-         for (Room room : project.getRooms())
+         for (Room room : SortUtils.sortByLabel(project.getRooms()))
          {
             Context childCtx = new Context(ctx);
-            childCtx.set("room", room);
+            childCtx.set(varName, room);
 
             for (AbstractComponentDecl child : childs)
                compFactory.createComponent(childCtx, child, proc);
          }
       }
-      else if ("category".equals(type))
+      else if ("categories".equals(type))
       {
-         for (Category category : project.getCategories())
+         for (Category category : SortUtils.sortByLabel(project.getCategories()))
          {
             Context childCtx = new Context(ctx);
-            childCtx.set("category", category);
+            childCtx.set(varName, category);
 
             for (AbstractComponentDecl child : childs)
                compFactory.createComponent(childCtx, child, proc);
          }
       }
-      else if ("item".equals(type)) // all items of a room or category
+      else if ("items".equals(type)) // all items of a room or category
       {
          final Room parentRoom = (Room) ctx.get("room");
          final Category parentCategory = (Category) ctx.get("category");
@@ -77,17 +79,14 @@ public class ForeachCreator
             rooms = new Vector<Room>(1);
             rooms.add(parentRoom);
          }
-         else rooms = project.getRooms();
+         else rooms = SortUtils.sortByLabel(project.getRooms());
 
          for (Room room : rooms)
          {
-            Context roomCtx = new Context(ctx);
-            roomCtx.set("room", room);
-
-            for (Item item : room.getItems())
+            for (Item item : SortUtils.sortByLabel(room.getItems()))
             {
-               Context itemCtx = new Context(roomCtx);
-               itemCtx.set("item", item);
+               Context itemCtx = new Context(ctx);
+               itemCtx.set(varName, item);
                itemCtx.set("room", room);
 
                if (parentCategory == null)
@@ -98,7 +97,7 @@ public class ForeachCreator
                else
                {
                   Group group = project.getGroup(item.getGroup());
-                  if (group != null && parentCategory.getId().equals(group.getCategory()))
+                  if (group != null && parentCategory.equals(group.getCategory()))
                   {
                      for (AbstractComponentDecl child : childs)
                         compFactory.createComponent(itemCtx, child, proc);
@@ -107,7 +106,7 @@ public class ForeachCreator
             }
          }
       }
-      else if ("group".equals(type))
+      else if ("groups".equals(type))
       {
          for (Group group : project.getGroups())
          {

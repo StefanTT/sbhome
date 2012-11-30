@@ -1,36 +1,40 @@
 package org.selfbus.sbhome.model.group;
 
+import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
+import org.freebus.knxcomm.application.DataPointType;
+import org.selfbus.sbhome.model.AbstractIdentified;
+import org.selfbus.sbhome.model.Category;
 import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.service.GroupListener;
 
 /**
- * A KNX/EIB group address.
+ * A group / communication object
  */
 @XmlType(namespace = Namespaces.PROJECT)
-@XmlAccessorType(XmlAccessType.FIELD)
-public class Group
+@XmlAccessorType(XmlAccessType.NONE)
+public class Group extends AbstractIdentified
 {
-   @XmlAttribute
-   private String id;
-
-   @XmlAttribute
-   private String category;
+   @XmlIDREF
+   @XmlAttribute(required = true)
+   private Category category;
 
    @XmlTransient
    private GroupAddress addr;
 
-   @XmlAttribute(name = "dataType")
-   private DataType dataType;
+   private DataPointType dataType;
 
    @XmlTransient
    private byte[] value;
@@ -39,43 +43,25 @@ public class Group
    private Set<GroupListener> listeners = new CopyOnWriteArraySet<GroupListener>();
 
    /**
-    * @return The ID of the group.
+    * @return The category.
     */
-   public String getId()
-   {
-      return id;
-   }
-
-   /**
-    * Set the ID of the group.
-    *
-    * @param id - the ID to set
-    */
-   public void setId(String id)
-   {
-      this.id = id;
-   }
-
-   /**
-    * @return The ID of the category.
-    */
-   public String getCategory()
+   public Category getCategory()
    {
       return category;
    }
 
    /**
-    * Set the ID of the category.
+    * Set the category.
     *
     * @param category - the category to set
     */
-   public void setCategory(String category)
+   public void setCategory(Category category)
    {
       this.category = category;
    }
 
    /**
-    * @return The group address.
+    * @return The group address, or null if undefined
     */
    public GroupAddress getAddr()
    {
@@ -85,7 +71,7 @@ public class Group
    /**
     * Set the group address.
     * 
-    * @param address - the group address
+    * @param address - the group address, may be null
     */
    public void setAddr(GroupAddress addr)
    {
@@ -114,7 +100,7 @@ public class Group
    /**
     * @return The group data type.
     */
-   public DataType getDataType()
+   public DataPointType getDataType()
    {
       return dataType;
    }
@@ -124,9 +110,29 @@ public class Group
     * 
     * @param dataType - the data type to set
     */
-   public void setDataType(DataType dataType)
+   public void setDataType(DataPointType dataType)
    {
       this.dataType = dataType;
+   }
+
+   /**
+    * @return The group data type as string.
+    */
+   public String getDataTypeStr()
+   {
+      return dataType.toString().toLowerCase().replace('_', ' ');
+   }
+
+   /**
+    * Set the group data type.
+    * 
+    * @param dataType - the data type to set
+    */
+   @XmlAttribute(name = "dataType", required = true)
+   public void setDataTypeStr(String dataType)
+   {
+      this.dataType = DataPointType.valueOf(dataType.toUpperCase().replace(' ', '_'));
+      Validate.notNull(this.dataType, "Invalid data type: " + dataType);
    }
 
    /**
@@ -145,8 +151,15 @@ public class Group
     */
    public void setValue(byte[] value)
    {
-      this.value = value.clone();
-      fireValueChanged();
+      if (!Arrays.equals(this.value, value))
+      {
+         this.value = value == null ? null : value.clone();
+
+         if (addr != null && value != null)
+            Daemon.getInstance().sendTelegram(addr, dataType, this.value);
+
+         fireValueChanged();
+      }
    }
 
    /**

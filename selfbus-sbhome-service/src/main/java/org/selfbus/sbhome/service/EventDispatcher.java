@@ -6,7 +6,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Semaphore;
 
-import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.application.ApplicationType;
 import org.freebus.knxcomm.application.GroupValueWrite;
@@ -82,7 +81,10 @@ public class EventDispatcher
             return;
          }
 
-         grp.setValue(app.getData());
+         byte[] data = app.getData();
+         if (data == null)
+            data = new byte[] { (byte) app.getApciValue() };
+         grp.setValue(data);
 
          workQueue.add(telegram);
          workSemaphore.release();

@@ -4,12 +4,11 @@ import java.util.List;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
-import org.freebus.knxcomm.application.GroupValueWrite;
 import org.freebus.knxcomm.telegram.Telegram;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.action.AbstractActionDecl;
 import org.selfbus.sbhome.model.action.ChangeItemActionDecl;
-import org.selfbus.sbhome.model.action.SendTelegramActionDecl;
+import org.selfbus.sbhome.model.action.SetGroupValueActionDecl;
 import org.selfbus.sbhome.model.action.ShowPanelActionDecl;
 import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.PanelDecl;
@@ -159,8 +158,8 @@ public class TriggerCreator
    {
       final String key = trigger.getKey();
 
-      // TODO handle different input types, not only (left) mouse clicks.
-      LOGGER.warn("Ignoring unknown input-trigger key {}", key);
+      // TODO implement
+      LOGGER.warn("Ignoring input-trigger key {}", key);
    }
 
    /**
@@ -195,22 +194,18 @@ public class TriggerCreator
     */
    public void performAction(final Context ctx, AbstractComponent comp, AbstractActionDecl action)
    {
-      if (action instanceof SendTelegramActionDecl)
+      if (action instanceof SetGroupValueActionDecl)
       {
-         final SendTelegramActionDecl sendTelegramAction = (SendTelegramActionDecl) action;
+         final SetGroupValueActionDecl sendTelegramAction = (SetGroupValueActionDecl) action;
 
          String groupRef = sendTelegramAction.getGroup();
          Group group = (Group) evaluator.eval(ctx, groupRef);
          Validate.notNull(group, "Invalid group: " + groupRef);
 
-         final GroupAddress dest = group.getAddr();
          final byte[] data = new byte[] { (byte) Integer.parseInt(sendTelegramAction.getValue()) };
 
          // TODO handle values other than single bytes
-
-         final Telegram telegram = new Telegram(new GroupValueWrite(data));
-         telegram.setDest(dest);
-         Daemon.getInstance().sendTelegram(telegram);
+         group.setValue(data);
       }
       else if (action instanceof ChangeItemActionDecl)
       {

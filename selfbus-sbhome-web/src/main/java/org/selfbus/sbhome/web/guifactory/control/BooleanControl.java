@@ -1,13 +1,9 @@
 package org.selfbus.sbhome.web.guifactory.control;
 
-import org.freebus.fts.common.address.GroupAddress;
-import org.freebus.knxcomm.application.GroupValueWrite;
-import org.freebus.knxcomm.telegram.Telegram;
 import org.selfbus.sbhome.model.Item;
 import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.ItemController;
 import org.selfbus.sbhome.process.Context;
-import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.service.GroupListener;
 import org.selfbus.sbhome.web.guifactory.Evaluator;
 import org.selfbus.sbhome.web.misc.I18n;
@@ -28,17 +24,14 @@ public class BooleanControl extends AbstractControl
 {
    private final AbstractLayout component;
    private final Button valueButton = new Button(I18n.getMessage("Button.off"));
-   private final GroupAddress groupAddr;
    private Boolean value = false;
 
    /**
     * Create a boolean value control.
     */
-   public BooleanControl(Context ctx, ItemController itemController, Item item, Group group, Evaluator evaluator)
+   public BooleanControl(Context ctx, ItemController itemController, Item item, final Group group, Evaluator evaluator)
    {
       super();
-
-      groupAddr = group.getAddr();
 
       component = new HorizontalLayout();
       component.setSizeFull();
@@ -66,12 +59,10 @@ public class BooleanControl extends AbstractControl
             value = !value;
             updateUI();
 
-            byte[] data = new byte[1];
-            data[0] = (byte) (value ? 1 : 0);
+            byte[] newData = new byte[1];
+            newData[0] = (byte) (value ? 1 : 0);
 
-            final Telegram telegram = new Telegram(new GroupValueWrite(data));
-            telegram.setDest(groupAddr);
-            Daemon.getInstance().sendTelegram(telegram);
+            group.setValue(newData);
          }
       });
 

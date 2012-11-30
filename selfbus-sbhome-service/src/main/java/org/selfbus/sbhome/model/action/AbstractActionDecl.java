@@ -9,9 +9,9 @@ package org.selfbus.sbhome.model.action;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
+import org.selfbus.sbhome.model.AbstractIdentified;
 import org.selfbus.sbhome.model.Namespaces;
 
 /**
@@ -19,8 +19,6 @@ import org.selfbus.sbhome.model.Namespaces;
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.FIELD)
-public abstract class AbstractActionDecl
+public abstract class AbstractActionDecl extends AbstractIdentified
 {
-   @XmlAttribute(name = "id", required = false)
-   private String id;
 }
