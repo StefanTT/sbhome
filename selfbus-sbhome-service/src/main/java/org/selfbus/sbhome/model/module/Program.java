@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.model.program;
+package org.selfbus.sbhome.model.module;
 
 import java.util.Set;
 
@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.jexl2.Expression;
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Namespaces;
 
 /**
  * A small script. 

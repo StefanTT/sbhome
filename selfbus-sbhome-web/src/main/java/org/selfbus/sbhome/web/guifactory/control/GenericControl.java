@@ -1,11 +1,10 @@
 package org.selfbus.sbhome.web.guifactory.control;
 
-import org.freebus.fts.common.HexString;
 import org.selfbus.sbhome.model.Item;
-import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.ItemController;
+import org.selfbus.sbhome.model.variable.Variable;
+import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
-import org.selfbus.sbhome.service.GroupListener;
 import org.selfbus.sbhome.web.guifactory.Evaluator;
 
 import com.vaadin.terminal.Sizeable;
@@ -25,7 +24,7 @@ public class GenericControl extends AbstractControl
    /**
     * Create a boolean value control.
     */
-   public GenericControl(Context ctx, ItemController itemController, Item item, Group group, Evaluator evaluator)
+   public GenericControl(Context ctx, ItemController itemController, Item item, Variable group, Evaluator evaluator)
    {
       super();
 
@@ -40,18 +39,18 @@ public class GenericControl extends AbstractControl
       nameLabel.setWidth(200, Sizeable.UNITS_PIXELS);
       component.addComponent(nameLabel);
 
-      byte[] data = group.getValue();
-      valueLabel.setCaption(data == null ? "" : HexString.toString(data));
+      Object value = group.getValue();
+      valueLabel.setCaption(value == null ? "" : value.toString());
 
       component.addComponent(valueLabel);
 
-      group.addListener(new GroupListener()
+      group.addListener(new VariableListener()
       {
          @Override
-         public void groupValueChanged(Group group)
+         public void valueChanged(Variable group)
          {
-            byte[] data = group.getValue();
-            valueLabel.setCaption(data == null ? "" : HexString.toString(data));
+            Object value = group.getValue();
+            valueLabel.setCaption(value == null ? "" : value.toString());
          }
       });
    }

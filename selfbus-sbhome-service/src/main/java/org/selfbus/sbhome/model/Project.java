@@ -16,9 +16,12 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
-import org.selfbus.sbhome.model.group.Group;
+import org.selfbus.sbhome.base.Namespaces;
 import org.selfbus.sbhome.model.gui.PanelDecl;
-import org.selfbus.sbhome.model.program.Program;
+import org.selfbus.sbhome.model.module.ModuleType;
+import org.selfbus.sbhome.model.module.Program;
+import org.selfbus.sbhome.model.variable.GroupVariable;
+import org.selfbus.sbhome.model.variable.Variable;
 
 /**
  * A project.
@@ -33,8 +36,9 @@ public class Project
    @XmlAttribute
    private String startPanel;
 
-   private Map<GroupAddress, Group> groups;
-   private Map<String, Group> groupsByName;
+   private Map<GroupAddress, GroupVariable> groupVars;
+   private Map<String, Variable> vars;
+   private Map<String, ModuleType> moduleTypes;
    private Map<String, Category> categories;
    private Map<String, Room> rooms;
    private List<PanelDecl> panels;
@@ -83,30 +87,6 @@ public class Project
    }
 
    /**
-    * Get a specific group.
-    * 
-    * @param addr - the address of the group to get.
-    * @return The group, or null if the address is unknown.
-    */
-   public Group getGroup(GroupAddress addr)
-   {
-      return groups.get(addr);
-   }
-
-   /**
-    * Get a specific group.
-    * 
-    * @param id - the ID of the group to get.
-    * @return The group.
-    * @throws IllegalArgumentException if no group with the ID exists
-    */
-   public Group getGroup(String id)
-   {
-      Validate.isTrue(groupsByName.containsKey(id), "invalid group ID \"" + id + "\"");
-      return groupsByName.get(id);
-   }
-
-   /**
     * Get a category.
     * 
     * @param id - the ID of the category
@@ -148,36 +128,119 @@ public class Project
    }
 
    /**
-    * @return The groups
+    * Get a specific group variable by group address.
+    * 
+    * @param addr - the address of the variable to get.
+    * @return The variable, or null if the address is unknown.
+    */
+   public Variable getVariable(GroupAddress addr)
+   {
+      return groupVars.get(addr);
+   }
+
+   /**
+    * Get a specific variable.
+    * 
+    * @param name - the name of the variable to get.
+    * @return The group.
+    * @throws IllegalArgumentException if no group with the ID exists
+    */
+   public Variable getVariable(String name)
+   {
+      Validate.isTrue(vars.containsKey(name), "invalid variable \"" + name + "\"");
+      return vars.get(name);
+   }
+
+   /**
+    * @return The variables
+    */
+   @XmlElementWrapper(name = "variables")
+   @XmlElement(name = "variable")
+   public List<Variable> getVariables()
+   {
+      if (vars == null)
+         return new Vector<Variable>();
+
+      final List<Variable> result = new Vector<Variable>(vars.size());
+      result.addAll(vars.values());
+      return result;
+   }
+
+   /**
+    * @param vars - the variables to set
+    */
+   public synchronized void setVariables(List<Variable> vars)
+   {
+      if (this.vars == null)
+         this.vars = new HashMap<String, Variable>();
+
+      for (final Variable var : vars)
+         this.vars.put(var.getName(), var);
+   }
+
+   /**
+    * @return The group variables
     */
    @XmlElementWrapper(name = "groups")
    @XmlElement(name = "group")
-   public List<Group> getGroups()
+   public List<GroupVariable> getGroupVariables()
    {
-      final List<Group> result = new Vector<Group>(groups == null ? 1 : groups.size());
+      if (groupVars == null)
+         return new Vector<GroupVariable>();
 
-      if (groups != null)
-         result.addAll(groups.values());
-
+      final List<GroupVariable> result = new Vector<GroupVariable>(groupVars.size());
+      result.addAll(groupVars.values());
       return result;
    }
 
    /**
     * @param groups - the groups to set
     */
-   public void setGroups(List<Group> groups)
+   public synchronized void setGroupVariables(List<GroupVariable> groupVars)
    {
-      final Map<GroupAddress, Group> newGroups = new HashMap<GroupAddress, Group>(groups.size() * 3);
-      final Map<String, Group> newGroupsByName = new HashMap<String, Group>(groups.size() * 3);
+      if (this.vars == null)
+         this.vars = new HashMap<String, Variable>();
 
-      for (final Group group : groups)
+      this.groupVars = new HashMap<GroupAddress, GroupVariable>();
+
+      for (GroupVariable var : groupVars)
       {
-         newGroups.put(group.getAddr(), group);
-         newGroupsByName.put(group.getId(), group);
+         this.vars.put(var.getName(), var);
+         this.groupVars.put(var.getAddr(), var);
+      }
+   }
+
+   /**
+    * @return The module types.
+    */
+   @XmlElementWrapper(name = "moduleTypes")
+   @XmlElement(name = "moduleType")
+   public List<ModuleType> getModuleTypes()
+   {
+      final List<ModuleType> result = new Vector<ModuleType>(moduleTypes == null ? 1 : moduleTypes.size());
+
+      if (moduleTypes != null)
+         result.addAll(moduleTypes.values());
+
+      return result;
+   }
+
+   /**
+    * @param moduleTypes - the module types to set
+    */
+   public void setModuleTypes(List<ModuleType> moduleTypes)
+   {
+      Map<String, ModuleType> newModuleTypes = new HashMap<String, ModuleType>(moduleTypes.size() * 3);
+
+      for (ModuleType moduleType : moduleTypes)
+      {
+         if (newModuleTypes.containsKey(moduleType.getName()))
+            throw new IllegalArgumentException("module type name \"" + moduleType.getName() + "\" is not unique");
+
+         newModuleTypes.put(moduleType.getName(), moduleType);
       }
 
-      this.groups = newGroups;
-      this.groupsByName = newGroupsByName;
+      this.moduleTypes = newModuleTypes;
    }
 
    /**

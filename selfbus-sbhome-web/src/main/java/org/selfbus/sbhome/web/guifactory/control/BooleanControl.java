@@ -1,10 +1,10 @@
 package org.selfbus.sbhome.web.guifactory.control;
 
 import org.selfbus.sbhome.model.Item;
-import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.ItemController;
+import org.selfbus.sbhome.model.variable.Variable;
+import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
-import org.selfbus.sbhome.service.GroupListener;
 import org.selfbus.sbhome.web.guifactory.Evaluator;
 import org.selfbus.sbhome.web.misc.I18n;
 
@@ -29,7 +29,7 @@ public class BooleanControl extends AbstractControl
    /**
     * Create a boolean value control.
     */
-   public BooleanControl(Context ctx, ItemController itemController, Item item, final Group group, Evaluator evaluator)
+   public BooleanControl(Context ctx, ItemController itemController, Item item, final Variable group, Evaluator evaluator)
    {
       super();
 
@@ -44,8 +44,9 @@ public class BooleanControl extends AbstractControl
       nameLabel.setWidth(200, Sizeable.UNITS_PIXELS);
       component.addComponent(nameLabel);
 
-      byte[] data = group.getValue();
-      value = data == null ? false : data[0] != 0;
+      value = (Boolean) group.getValue();
+      if (value == null)
+         value = Boolean.FALSE;
 
       valueButton.addStyleName("switch");
       component.addComponent(valueButton);
@@ -57,23 +58,21 @@ public class BooleanControl extends AbstractControl
          public void buttonClick(ClickEvent event)
          {
             value = !value;
-            updateUI();
-
-            byte[] newData = new byte[1];
-            newData[0] = (byte) (value ? 1 : 0);
-
-            group.setValue(newData);
+            group.setValue(value);
          }
       });
 
       updateUI();
 
-      group.addListener(new GroupListener()
+      group.addListener(new VariableListener()
       {
          @Override
-         public void groupValueChanged(Group group)
+         public void valueChanged(Variable group)
          {
-            value = group.getValue()[0] != 0;
+            value = (Boolean) group.getValue();
+            if (value == null)
+               value = Boolean.FALSE;
+
             updateUI();
          }
       });

@@ -8,9 +8,9 @@ import org.selfbus.sbhome.model.Category;
 import org.selfbus.sbhome.model.Item;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.Room;
-import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.AbstractComponentDecl;
 import org.selfbus.sbhome.model.gui.generator.Foreach;
+import org.selfbus.sbhome.model.variable.Variable;
 import org.selfbus.sbhome.process.Context;
 
 /**
@@ -96,7 +96,7 @@ public class ForeachCreator
                }
                else
                {
-                  Group group = project.getGroup(item.getGroup());
+                  Variable group = project.getVariable(item.getVariable());
                   if (group != null && parentCategory.equals(group.getCategory()))
                   {
                      for (AbstractComponentDecl child : childs)
@@ -108,7 +108,7 @@ public class ForeachCreator
       }
       else if ("groups".equals(type))
       {
-         for (Group group : project.getGroups())
+         for (Variable group : project.getVariables())
          {
             Context childCtx = new Context(ctx);
             childCtx.set("group", group);

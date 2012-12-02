@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.domain;
+package org.selfbus.sbhome.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -8,11 +8,11 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 
-import org.freebus.knxcomm.application.DataPointType;
+import org.freebus.knxcomm.application.value.DataPointType;
 import org.junit.Test;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.ProjectImporter;
-import org.selfbus.sbhome.model.group.Group;
+import org.selfbus.sbhome.model.variable.Variable;
 
 
 public class TestProjectImporter
@@ -25,8 +25,12 @@ public class TestProjectImporter
       final String data = XML_HEADER + 
          "<project name=\"project-1\" startPanel=\"panel.1\">\n" +
          " <categories><category id=\"cat1\" /></categories>\n" +
+         " <variables>\n" +
+         "  <variable name=\"var1\" type=\"bool\" category=\"cat1\" />\n" +
+         "  <variable name=\"var2\" type=\"unsigned short\" category=\"cat1\" />\n" +
+         " </variables>\n" +
          " <groups>\n" +
-         "  <group id=\"group.1\" addr=\"1/0/100\" dataType=\"bool\" category=\"cat1\" />\n" +
+         "  <group name=\"group1\" addr=\"1/0/100\" type=\"bool\" category=\"cat1\" />\n" +
          " </groups>\n" +
          " <panels>\n" +
          "  <panel id=\"panel.1\">\n" +
@@ -41,7 +45,7 @@ public class TestProjectImporter
       final Project project = importer.readProject(in); 
       assertNotNull(project);
       assertEquals("project-1", project.getName());
-      assertEquals(1, project.getGroups().size());
+      assertEquals(3, project.getVariables().size());
       assertEquals(1, project.getPanels().size());
       assertNotNull("panel's childs not loaded", project.getPanels().get(0).getChilds());
       assertEquals(2, project.getPanels().get(0).getChilds().size());
@@ -56,9 +60,9 @@ public class TestProjectImporter
       final Project project = importer.readProject(file); 
       assertNotNull(project);
 
-      Group group = project.getGroup("light.1");
+      Variable group = project.getVariable("light.1");
       assertNotNull(group);
-      assertEquals(DataPointType.BOOL, group.getDataType());
+      assertEquals(DataPointType.BOOL, group.getType());
       assertNotNull(group.getCategory());
       assertEquals("light", group.getCategory().getId());
    }

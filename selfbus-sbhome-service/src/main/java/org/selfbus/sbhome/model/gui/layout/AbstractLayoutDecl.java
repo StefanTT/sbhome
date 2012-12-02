@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Namespaces;
 import org.selfbus.sbhome.model.gui.AbstractComponentDecl;
 import org.selfbus.sbhome.model.gui.ButtonDecl;
 import org.selfbus.sbhome.model.gui.ItemController;

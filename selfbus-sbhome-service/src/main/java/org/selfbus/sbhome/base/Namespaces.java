@@ -1,9 +1,10 @@
-package org.selfbus.sbhome.model;
+package org.selfbus.sbhome.base;
+
 
 /**
  * Namespace(s) for XSD schema generation
  */
-public interface Namespaces
+public class Namespaces
 {
    public static final String PROJECT = "http://www.selfbus.org/xsd/sbhome/project.xsd";
 }

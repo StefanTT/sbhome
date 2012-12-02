@@ -1,17 +1,16 @@
-package org.selfbus.sbhome.model;
+package org.selfbus.sbhome.model.module;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.AbstractElement;
 import org.selfbus.sbhome.base.Namespaces;
 
 /**
- * A category which is used to categorize items.
+ * An output connector for model types.
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.FIELD)
-public class Category extends AbstractElement
+public class ModuleTypeOutputConnector extends ModuleTypeConnector
 {
 }

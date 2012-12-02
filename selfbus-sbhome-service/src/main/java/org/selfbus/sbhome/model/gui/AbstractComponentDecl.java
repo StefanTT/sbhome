@@ -10,12 +10,12 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.model.Identified;
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Identified;
+import org.selfbus.sbhome.base.Namespaces;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
 import org.selfbus.sbhome.model.trigger.ClickTriggerDecl;
 import org.selfbus.sbhome.model.trigger.KeyTriggerDecl;
-import org.selfbus.sbhome.model.trigger.TelegramTriggerDecl;
+import org.selfbus.sbhome.model.trigger.ValueChangeTriggerDecl;
 
 /**
  * A component is the base class for graphical GUI elements.
@@ -43,7 +43,7 @@ public abstract class AbstractComponentDecl implements LayoutElement, Identified
    ({
       @XmlElement(name = "onKey", type = KeyTriggerDecl.class),
       @XmlElement(name = "onClick", type = ClickTriggerDecl.class),
-      @XmlElement(name = "onTelegram", type = TelegramTriggerDecl.class)
+      @XmlElement(name = "onValueChange", type = ValueChangeTriggerDecl.class)
    })
    private List<AbstractTriggerDecl> triggers;
 

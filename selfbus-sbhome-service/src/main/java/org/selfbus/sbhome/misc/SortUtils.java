@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.selfbus.sbhome.model.Identified;
-import org.selfbus.sbhome.model.Labeled;
+import org.selfbus.sbhome.base.Identified;
+import org.selfbus.sbhome.base.Labeled;
 
 /**
  * Utility methods for sorting.

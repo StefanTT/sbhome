@@ -5,6 +5,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
+import org.selfbus.sbhome.base.AbstractElement;
+import org.selfbus.sbhome.base.Namespaces;
+
 /**
  * An item.
  */
@@ -12,15 +15,15 @@ import javax.xml.bind.annotation.XmlType;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class Item extends AbstractElement
 {
-   @XmlAttribute
-   private String group;
+   @XmlAttribute(required = true)
+   private String variable;
 
    /**
-    * @return The ID of the group.
+    * @return The name of the variable.
     */
-   public String getGroup()
+   public String getVariable()
    {
-      return group;
+      return variable;
    }
 
    /**
@@ -29,6 +32,6 @@ public class Item extends AbstractElement
    @Override
    public String getId()
    {
-      return group;
+      return variable;
    }
 }

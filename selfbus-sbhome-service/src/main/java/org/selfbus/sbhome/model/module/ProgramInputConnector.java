@@ -1,10 +1,10 @@
-package org.selfbus.sbhome.model.program;
+package org.selfbus.sbhome.model.module;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Namespaces;
 
 /**
  * A connector connects program variables to group values and acts as input variable.

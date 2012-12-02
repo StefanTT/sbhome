@@ -11,7 +11,7 @@ import org.freebus.knxcomm.application.ApplicationType;
 import org.freebus.knxcomm.application.GroupValueWrite;
 import org.freebus.knxcomm.telegram.Telegram;
 import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.group.Group;
+import org.selfbus.sbhome.model.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,6 +62,18 @@ public class EventDispatcher
    }
 
    /**
+    * Causes <i>doRun.run()</i> to be executed asynchronously in the event dispatching thread. This
+    * will happen after all pending events have been processed.
+    * 
+    * @param doRun - the runnable to be executed
+    */
+   public void invokeLater(Runnable doRun)
+   {
+      workQueue.add(doRun);
+      workSemaphore.release();
+   }
+
+   /**
     * A group {@link Telegram telegram} was received.
     * 
     * @param telegram - the received telegram.
@@ -74,17 +86,14 @@ public class EventDispatcher
          final GroupAddress addr = (GroupAddress) telegram.getDest();
          final GroupValueWrite app = (GroupValueWrite) telegram.getApplication();
 
-         final Group grp = project.getGroup(addr);
+         final Variable grp = project.getVariable(addr);
          if (grp == null)
          {
             LOGGER.debug("Ignoring telegram for unkown group {}", addr);
             return;
          }
 
-         byte[] data = app.getData();
-         if (data == null)
-            data = new byte[] { (byte) app.getApciValue() };
-         grp.setValue(data);
+         grp.setRawValue(app.getApciData());
 
          workQueue.add(telegram);
          workSemaphore.release();
@@ -138,17 +147,30 @@ public class EventDispatcher
             }
 
             final Object work = workQueue.poll();
-            if (work instanceof Telegram)
-            {
-               final Telegram telegram = (Telegram) work;
-               LOGGER.info("Telegram event: {}", telegram);
 
-               for (GroupTelegramListener listener : telegramListeners)
-                  listener.telegramReceived(telegram);
-            }
-            else
+            try
             {
-               LOGGER.error("ignoring unknown work payload {}", work.getClass().getName());
+               if (work instanceof Telegram)
+               {
+                  final Telegram telegram = (Telegram) work;
+                  LOGGER.info("Telegram event: {}", telegram);
+
+                  for (GroupTelegramListener listener : telegramListeners)
+                     listener.telegramReceived(telegram);
+               }
+               else if (work instanceof Runnable)
+               {
+                  Runnable doRun = (Runnable) work;
+                  doRun.run();
+               }
+               else if (work != null)
+               {
+                  LOGGER.error("Ignoring unknown work payload {}", work.getClass().getName());
+               }
+            }
+            catch (Exception e)
+            {
+               LOGGER.error("Uncaught exception in event dispatcher", e);
             }
          }
       }

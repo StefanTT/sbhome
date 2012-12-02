@@ -9,31 +9,31 @@ import javax.xml.bind.annotation.XmlType;
 import org.selfbus.sbhome.base.Namespaces;
 
 /**
- * A trigger that reacts on key presses.
+ * A trigger that triggers when a group value changes.
  */
 @XmlRootElement(name = "trigger")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.NONE)
 @XmlType(namespace = Namespaces.PROJECT)
-public class KeyTriggerDecl extends AbstractTriggerDecl
+public class ValueChangeTriggerDecl extends AbstractTriggerDecl
 {
-   @XmlAttribute
-   private String key;
+   @XmlAttribute(name = "group")
+   protected String group;
 
    /**
-    * @return The key or mouse button that triggers.
+    * Set the group
+    * 
+    * @param group - the group to set
     */
-   public String getKey()
+   public void setGroup(String group)
    {
-      return key;
+      this.group = group;
    }
 
    /**
-    * Set the key or mouse button that triggers.
-    * 
-    * @param key - the key to set.
+    * @return The group
     */
-   public void setKey(String key)
+   public String getGroup()
    {
-      this.key = key;
+      return group;
    }
 }

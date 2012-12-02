@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.model;
+package org.selfbus.sbhome.base;
 
 /**
  * Interface for classes that have an ID.

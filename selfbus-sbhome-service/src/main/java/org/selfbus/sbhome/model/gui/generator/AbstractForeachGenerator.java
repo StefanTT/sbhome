@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Namespaces;
 
 /**
  * Abstract base class for generators that generate GUI components with a "foreach" enumeration.

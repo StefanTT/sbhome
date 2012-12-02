@@ -1,11 +1,11 @@
-package org.selfbus.sbhome.model.program;
+package org.selfbus.sbhome.model.module;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.model.Namespaces;
+import org.selfbus.sbhome.base.Namespaces;
 
 /**
  * A connector connects program variables to group values.
@@ -18,7 +18,7 @@ public abstract class AbstractProgramConnector
    private String name;
 
    @XmlAttribute
-   private String group;
+   private String variable;
 
    /**
     * @return the name
@@ -37,18 +37,18 @@ public abstract class AbstractProgramConnector
    }
 
    /**
-    * @return the group
+    * @return the name of the variable
     */
-   public String getGroup()
+   public String getVariable()
    {
-      return group;
+      return variable;
    }
 
    /**
-    * @param group the group to set
+    * @param variable the variable to set
     */
-   public void setGroup(String group)
+   public void setVariable(String variable)
    {
-      this.group = group;
+      this.variable = variable;
    }
 }

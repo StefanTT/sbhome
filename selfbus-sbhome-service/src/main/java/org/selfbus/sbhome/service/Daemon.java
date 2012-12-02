@@ -13,9 +13,9 @@ import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.BusInterface;
 import org.freebus.knxcomm.BusInterfaceFactory;
 import org.freebus.knxcomm.application.ApplicationType;
-import org.freebus.knxcomm.application.DataPointType;
 import org.freebus.knxcomm.application.GenericDataApplication;
 import org.freebus.knxcomm.application.GroupValueWrite;
+import org.freebus.knxcomm.application.value.DataPointType;
 import org.freebus.knxcomm.link.netip.KNXnetLink;
 import org.freebus.knxcomm.link.serial.SerialPortException;
 import org.freebus.knxcomm.telegram.Telegram;
@@ -25,9 +25,9 @@ import org.selfbus.sbhome.internal.I18n;
 import org.selfbus.sbhome.misc.ScriptUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.ProjectImporter;
-import org.selfbus.sbhome.model.group.Group;
-import org.selfbus.sbhome.model.program.AbstractProgramConnector;
-import org.selfbus.sbhome.model.program.Program;
+import org.selfbus.sbhome.model.module.AbstractProgramConnector;
+import org.selfbus.sbhome.model.module.Program;
+import org.selfbus.sbhome.model.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,10 +122,23 @@ public class Daemon
 
    /**
     * @return The event dispatcher.
+    * 
+    * @see runLater
     */
    public EventDispatcher getEventDispatcher()
    {
       return eventDispatcher;
+   }
+
+   /**
+    * Causes <i>doRun.run()</i> to be executed asynchronously in the event dispatching thread. This
+    * will happen after all pending events have been processed.
+    * 
+    * @param doRun - the runnable to be executed
+    */
+   public void invokeLater(Runnable doRun)
+   {
+      eventDispatcher.invokeLater(doRun);
    }
 
    /**
@@ -157,7 +170,7 @@ public class Daemon
 
    /**
     * Send a {@link ApplicationType#GroupValue_Write group-value write} telegram
-    *
+    * 
     * @param dest - the destination group address
     * @param dataType - the data type
     * @param data - the data value
@@ -172,7 +185,7 @@ public class Daemon
 
       Telegram telegram = new Telegram(app);
       telegram.setDest(dest);
-      
+
       sendTelegram(telegram);
    }
 
@@ -208,13 +221,13 @@ public class Daemon
       {
          GenericDataApplication app = (GenericDataApplication) telegram.getApplication();
 
-         Group group = project.getGroup((GroupAddress) dest);
+         Variable group = project.getVariable((GroupAddress) dest);
          if (group == null)
             return;
 
-         if (group.getDataType().isUsingApci())
-            group.setValue(app.getApciData());
-         else group.setValue(app.getData());
+         if (group.getType().isUsingApci())
+            group.setRawValue(app.getApciData());
+         else group.setRawValue(app.getData());
       }
    }
 

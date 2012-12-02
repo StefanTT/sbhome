@@ -5,31 +5,46 @@
   <category id="heating" label="Heating" />
  </categories>
  <groups>
-  <group id="light.all" addr="1/0/100" dataType="bool" category="light" />
-  <group id="light.1" addr="1/0/101" dataType="bool" category="light" />
-  <group id="light.2" addr="1/0/102" dataType="unsigned byte" category="light" />
+  <group name="light.all" addr="1/0/100" type="bool" category="light" />
+  <group name="light.1" addr="1/0/101" type="bool" category="light" />
+  <group name="light.2" addr="1/0/102" type="unsigned byte" category="light" />
  </groups>
-<!--  <functions>
-  <function name="lightAll">
-  </function>
- </functions>
- -->
+ <moduleTypes>
+  <moduleType name="logic.and">
+   <input name="in1" type="bool" />
+   <input name="in2" type="bool" />
+   <output name="out" type="bool" />
+   <variable name="tmp" type="bool" />
+   <variable name="tmp2" type="bool" />
+   <code>
+    <![CDATA[ tmp = in1 && in2; out = tmp; ]]>
+   </code>
+  </moduleType>
+  <moduleType name="lightLogic1">
+   <input name="in1" type="bool" />
+   <input name="in2" type="bool" />
+   <output name="out" type="bool" />
+   <code>
+    <![CDATA[ out = in1 || in2 ]]>
+   </code>
+  </moduleType>
+ </moduleTypes>
  <programs>
-  <program id="lightLogic1">
+  <program id="logic.or">
    <connectors>
-    <input name="in1" group="light-1" />
-    <input name="in2" group="light-2" />
-    <output name="out" group="light-4" />
+    <input name="in1" variable="light-1" />
+    <input name="in2" variable="light-2" />
+    <output name="out" variable="light-4" />
    </connectors>
    <code>
-    out = in1 | in2
+    <![CDATA[ out = in1 | in2 ]]>
    </code>
   </program>
  </programs>
  <rooms>
   <room id="living" label="Living Room">
-   <item label="Central light" group="light.1" />
-   <item label="Background light" group="light.2" />
+   <item label="Central light" variable="light.1" />
+   <item label="Background light" variable="light.2" />
   </room>
  </rooms>
  <panels>

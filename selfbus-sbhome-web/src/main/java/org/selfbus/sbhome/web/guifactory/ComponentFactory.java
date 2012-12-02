@@ -40,8 +40,6 @@ public class ComponentFactory
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentFactory.class);
 
-   private final Project project;
-   private final SbHomeApplication application;
    private final Evaluator evaluator;
    private final ForeachCreator foreachCreator;
    private final TriggerCreator triggerCreator;
@@ -56,13 +54,11 @@ public class ComponentFactory
     */
    public ComponentFactory(Project project, SbHomeApplication application, Evaluator evaluator)
    {
-      this.project = project;
-      this.application = application;
       this.evaluator = evaluator;
 
       foreachCreator = new ForeachCreator(project, this);
       triggerCreator = new TriggerCreator(project, application, this);
-      itemCreator = new ItemCreator(project, this, evaluator);
+      itemCreator = new ItemCreator(project, evaluator);
    }
 
    /**

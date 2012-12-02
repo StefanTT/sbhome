@@ -3,22 +3,20 @@ package org.selfbus.sbhome.web.guifactory;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
-import org.freebus.fts.common.address.GroupAddress;
-import org.freebus.knxcomm.telegram.Telegram;
+import org.freebus.knxcomm.application.value.GroupValueUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.action.AbstractActionDecl;
 import org.selfbus.sbhome.model.action.ChangeItemActionDecl;
 import org.selfbus.sbhome.model.action.SetGroupValueActionDecl;
 import org.selfbus.sbhome.model.action.ShowPanelActionDecl;
-import org.selfbus.sbhome.model.group.Group;
 import org.selfbus.sbhome.model.gui.PanelDecl;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
 import org.selfbus.sbhome.model.trigger.ClickTriggerDecl;
 import org.selfbus.sbhome.model.trigger.KeyTriggerDecl;
-import org.selfbus.sbhome.model.trigger.TelegramTriggerDecl;
+import org.selfbus.sbhome.model.trigger.ValueChangeTriggerDecl;
+import org.selfbus.sbhome.model.variable.Variable;
+import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
-import org.selfbus.sbhome.service.Daemon;
-import org.selfbus.sbhome.service.GroupTelegramListener;
 import org.selfbus.sbhome.web.SbHomeApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,9 +90,9 @@ public class TriggerCreator
       {
          registerTrigger(ctx, comp, (ClickTriggerDecl) trigger);
       }
-      else if (trigger instanceof TelegramTriggerDecl)
+      else if (trigger instanceof ValueChangeTriggerDecl)
       {
-         registerTrigger(ctx, comp, (TelegramTriggerDecl) trigger);
+         registerTrigger(ctx, comp, (ValueChangeTriggerDecl) trigger);
       }
       else
       {
@@ -109,17 +107,18 @@ public class TriggerCreator
     * @param comp - the GUI component
     * @param trigger - the trigger
     */
-   protected void registerTrigger(final Context ctx, final AbstractComponent comp, final TelegramTriggerDecl trigger)
+   protected void registerTrigger(final Context ctx, final AbstractComponent comp, final ValueChangeTriggerDecl trigger)
    {
-      final GroupAddress addr = project.getGroup(trigger.getGroup()).getAddr();
+      String groupName = trigger.getGroup();
+      Variable group = (Variable) evaluator.eval(ctx, groupName);
+      Validate.notNull(group, "unknown group: " + groupName);
 
-      Daemon.getInstance().getEventDispatcher().addTelegramListener(new GroupTelegramListener()
+      group.addListener(new VariableListener()
       {
          @Override
-         public void telegramReceived(Telegram telegram)
+         public void valueChanged(Variable group)
          {
-            if (addr.equals(telegram.getDest()) && trigger.matches(telegram))
-               performActions(ctx, comp, trigger);
+            performActions(ctx, comp, trigger);
          }
       });
    }
@@ -196,16 +195,13 @@ public class TriggerCreator
    {
       if (action instanceof SetGroupValueActionDecl)
       {
-         final SetGroupValueActionDecl sendTelegramAction = (SetGroupValueActionDecl) action;
+         final SetGroupValueActionDecl gvAction = (SetGroupValueActionDecl) action;
 
-         String groupRef = sendTelegramAction.getGroup();
-         Group group = (Group) evaluator.eval(ctx, groupRef);
+         String groupRef = gvAction.getGroup();
+         Variable group = (Variable) evaluator.eval(ctx, groupRef);
          Validate.notNull(group, "Invalid group: " + groupRef);
 
-         final byte[] data = new byte[] { (byte) Integer.parseInt(sendTelegramAction.getValue()) };
-
-         // TODO handle values other than single bytes
-         group.setValue(data);
+         group.setStringValue(gvAction.getValue());
       }
       else if (action instanceof ChangeItemActionDecl)
       {
