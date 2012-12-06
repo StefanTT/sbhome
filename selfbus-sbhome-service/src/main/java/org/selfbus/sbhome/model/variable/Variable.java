@@ -6,18 +6,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlID;
-import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.application.value.DataPointType;
 import org.freebus.knxcomm.application.value.GroupValueUtils;
-import org.selfbus.sbhome.base.Identified;
-import org.selfbus.sbhome.base.Namespaces;
-import org.selfbus.sbhome.model.Category;
+import org.selfbus.sbhome.model.base.AbstractNamed;
+import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.service.Daemon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A variable.
@@ -28,63 +27,42 @@ import org.selfbus.sbhome.service.Daemon;
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.NONE)
-public class Variable implements Identified, VariableListener
+public class Variable extends AbstractNamed implements VariableListener
 {
-   @XmlID
-   @XmlAttribute(required = true)
-   private String name;
-
-   @XmlIDREF
-   @XmlAttribute(required = true)
-   private Category category;
+   private static final Logger LOGGER = LoggerFactory.getLogger(Variable.class);
 
    private DataPointType type;
    private Object value;
    private Set<VariableListener> listeners = new CopyOnWriteArraySet<VariableListener>();
 
    /**
-    * @return The category.
+    * Create an empty variable.
     */
-   public Category getCategory()
+   public Variable()
    {
-      return category;
    }
 
    /**
-    * Set the name of the variable.
+    * Create a variable.
     * 
-    * @param name - the name to set.
+    * @param name - the name.
+    * @param type - the type.
     */
-   public void setName(String name)
+   public Variable(String name, DataPointType type)
    {
-      this.name = name;
+      setName(name);
+      this.type = type;
    }
 
    /**
-    * @return The name of the variable.
-    */
-   public String getName()
-   {
-      return name;
-   }
-
-   /**
-    * @return The ID of the variable, which is the same as it's name.
-    */
-   @Override
-   public String getId()
-   {
-      return name;
-   }
-
-   /**
-    * Set the category.
+    * Create a variable.
     * 
-    * @param category - the category to set
+    * @param decl - the declaration.
     */
-   public void setCategory(Category category)
+   public Variable(VariableDeclaration decl)
    {
-      this.category = category;
+      setName(decl.getName());
+      type = decl.getType();
    }
 
    /**
@@ -139,6 +117,14 @@ public class Variable implements Identified, VariableListener
    }
 
    /**
+    * Initialize the value. Does not trigger events.
+    */
+   public void initValue()
+   {
+      value = type.newValueObject();
+   }
+
+   /**
     * Set the value of the variable. The value is copied. Fires the {@link #fireValueChanged() value
     * changed} event.
     * 
@@ -146,18 +132,35 @@ public class Variable implements Identified, VariableListener
     */
    public void setValue(Object value)
    {
+      setValue(value, true);
+   }
+
+   /**
+    * Set the value of the variable. The value is copied. Optionally fires the
+    * {@link #fireValueChanged() value changed} event.
+    * 
+    * @param value - the value to set, may be null
+    * @param fireEvents - shall the value-changed events be fired?
+    */
+   public void setValue(Object value, boolean fireEvents)
+   {
       Validate.notNull(value);
 
       if (value == this.value || value.equals(this.value))
          return;
 
+      LOGGER.debug("{} = {}", name, value);
+
       Class<?> typeClass = type.getValueClass();
       if (typeClass != null && value.getClass() != typeClass)
-         throw new IllegalArgumentException("value must be of the type " + typeClass);
+      {
+         throw new IllegalArgumentException("Cannot assign a " + value.getClass() + " value to the " + getTypeStr()
+            + " variable " + getName());
+      }
 
       this.value = value;
 
-      if (!listeners.isEmpty())
+      if (fireEvents && !listeners.isEmpty())
       {
          Daemon.getInstance().invokeLater(new Runnable()
          {
@@ -185,10 +188,11 @@ public class Variable implements Identified, VariableListener
     * Set the value from the raw byte data.
     * 
     * @param raw - the raw byte data
+    * @param fireEvents - shall the value-changed events be fired?
     */
-   public void setRawValue(byte[] raw)
+   public void setRawValue(byte[] raw, boolean fireEvents)
    {
-      setValue(GroupValueUtils.fromBytes(raw, type));
+      setValue(GroupValueUtils.fromBytes(raw, type), fireEvents);
    }
 
    /**
@@ -231,8 +235,7 @@ public class Variable implements Identified, VariableListener
    }
 
    /**
-    * The value of a variable has changed. Update this variable and fire
-    * all variable listeners.
+    * The value of a variable has changed. Update this variable and fire all variable listeners.
     * 
     * @param var - the variable who'se value has changed
     */

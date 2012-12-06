@@ -8,8 +8,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.AbstractElement;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractElement;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * A room, which is used to group items.
@@ -22,7 +22,7 @@ public class Room extends AbstractElement
    private List<Item> items;
 
    /**
-    * @return The list of items in this room
+    * @return The items in this room
     */
    public List<Item> getItems()
    {

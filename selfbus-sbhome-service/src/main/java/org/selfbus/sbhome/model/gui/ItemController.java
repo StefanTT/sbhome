@@ -5,10 +5,10 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
- * A controller for an item. Visualizes the item and allows to manipulate
+ * A control for an item. Visualizes the item and allows to manipulate
  * the item.
  */
 @XmlType(namespace = Namespaces.PROJECT)

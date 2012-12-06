@@ -5,14 +5,15 @@
   <category id="heating" label="Heizung" />
  </categories>
  <variables>
-  <variable name="light.c1" type="bool" category="lighting" />
+  <variable name="lightTmp1" type="bool" />
+  <variable name="livingLightIndicator" type="bool" />
  </variables>
  <groups>
-  <group name="light.master" type="bool" addr="1/0/99" category="lighting" />
-  <group name="light.1" type="bool" addr="1/0/0" category="lighting" />
-  <group name="light.2" type="unsigned byte" addr="1/0/1" category="lighting" />
-  <group name="light.3" type="bool" addr="1/0/2" category="lighting" />
-  <group name="light.11" type="bool" addr="1/0/11" category="lighting" />
+  <group name="lightMaster" type="bool" addr="1/0/99" category="lighting" />
+  <group name="light1" type="bool" addr="1/0/0" category="lighting" />
+  <group name="light2" type="unsigned byte" addr="1/0/1" category="lighting" />
+  <group name="light3" type="bool" addr="1/0/2" category="lighting" />
+  <group name="light11" type="bool" addr="1/0/11" category="lighting" />
  </groups>
  <moduleTypes>
   <moduleType name="logic.and">
@@ -32,19 +33,28 @@
    </code>
   </moduleType>
  </moduleTypes>
+ <modules>
+  <module name="livingLightIndicator" type="logic.or" />
+ </modules>
+ <connections>
+  <connection from="light1" to="livingLightIndicator.in1" />
+  <connection from="light3" to="livingLightIndicator.in2" />
+  <connection from="livingLightIndicator.out" to="livingLightIndicator" />
+ </connections>
  <rooms>
   <room id="living" label="Wohnzimmer">
-   <item label="Raumlicht" variable="light.1" />
-   <item label="Hintergrund Beleuchtung" variable="light.2" />
+   <item label="Raumlicht" variable="light1" />
+   <item label="Hintergrund Beleuchtung" variable="light2" />
+   <item label="Licht Indikator" variable="livingLightIndicator" />
   </room>
   <room id="dining" label="Esszimmer">
-   <item label="Raumlicht" variable="light.1" />
+   <item label="Raumlicht" variable="light1" />
   </room>
   <room id="entrance" label="Eingang">
-   <item label="Raumlicht" variable="light.3" />
+   <item label="Raumlicht" variable="light3" />
   </room>
   <room id="garage" label="Garage">
-   <item label="Raumlicht" variable="light.11" />
+   <item label="Raumlicht" variable="light11" />
   </room>
  </rooms>
  <panels>
@@ -73,35 +83,35 @@
    <verticalLayout>
     <foreach var="group" items="groups">
      <horizontalLayout>
-      <label text="Setze Wert von ${group.id} auf" width="200" />
+      <label text="Setze Wert von ${group.name} auf" width="200" />
       <button text="0">
        <onClick>
-        <setValue group="${group}" value="0" />
+        <setVariable name="${group}" value="0" />
        </onClick>
       </button>
       <button text="1">
        <onClick>
-        <setValue group="${group}" value="1" />
+        <setVariable name="${group}" value="1" />
        </onClick>
       </button>
       <button text="10">
        <onClick>
-        <setValue group="${group}" value="10" />
+        <setVariable name="${group}" value="10" />
        </onClick>
       </button>
       <button text="50">
        <onClick>
-        <setValue group="${group}" value="50" />
+        <setVariable name="${group}" value="50" />
        </onClick>
       </button>
       <button text="100">
        <onClick>
-        <setValue group="${group}" value="100" />
+        <setVariable name="${group}" value="100" />
        </onClick>
       </button>
       <button text="255">
        <onClick>
-        <setValue group="${group}" value="255" />
+        <setVariable name="${group}" value="255" />
        </onClick>
       </button>
      </horizontalLayout>

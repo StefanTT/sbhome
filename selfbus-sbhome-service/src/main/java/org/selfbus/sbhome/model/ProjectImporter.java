@@ -60,12 +60,16 @@ public class ProjectImporter
          if (schemaUrl == null)
             throw new RuntimeException("Schema file not found in class path: " + schemaFileName);
 
-         final Unmarshaller unmarshaller = context.createUnmarshaller();
+         Unmarshaller unmarshaller = context.createUnmarshaller();
          unmarshaller.setSchema(SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI).newSchema(schemaUrl));
 
          @SuppressWarnings("unchecked")
-         final JAXBElement<Project> root = (JAXBElement<Project>) unmarshaller.unmarshal(stream);
-         return root.getValue();
+         JAXBElement<Project> root = (JAXBElement<Project>) unmarshaller.unmarshal(stream);
+
+         Project project = root.getValue();
+         project.postLoad();
+
+         return project;
       }
       catch (JAXBException e)
       {

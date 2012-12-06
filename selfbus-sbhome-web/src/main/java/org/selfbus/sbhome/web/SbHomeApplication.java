@@ -81,7 +81,7 @@ public class SbHomeApplication extends Application
    /**
     * @return The application's {@link JexlEngine Jexl engine}.
     */
-   public JexlEngine getJexl()
+   public JexlEngine getScriptEngine()
    {
       return jexl;
    }

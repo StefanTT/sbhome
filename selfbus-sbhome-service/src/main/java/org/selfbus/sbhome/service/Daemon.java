@@ -4,11 +4,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
-import org.freebus.fts.common.address.Address;
 import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.BusInterface;
 import org.freebus.knxcomm.BusInterfaceFactory;
@@ -25,9 +25,7 @@ import org.selfbus.sbhome.internal.I18n;
 import org.selfbus.sbhome.misc.ScriptUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.ProjectImporter;
-import org.selfbus.sbhome.model.module.AbstractProgramConnector;
-import org.selfbus.sbhome.model.module.Program;
-import org.selfbus.sbhome.model.variable.Variable;
+import org.selfbus.sbhome.model.variable.GroupVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +41,10 @@ public class Daemon
    private BusInterface busInterface;
    private final JexlEngine jexl = ScriptUtils.createJexlEngine();
    private final EventDispatcher eventDispatcher = new EventDispatcher();
+   private final Set<GroupTelegramListener> telegramListeners = new CopyOnWriteArraySet<GroupTelegramListener>();
+
    private final Queue<Telegram> telegramHistory = new ConcurrentLinkedQueue<Telegram>();
-   private int historySize = 20;
+   private int telegramHistorySize = 20;
 
    /**
     * @return The global daemon instance.
@@ -53,7 +53,7 @@ public class Daemon
    {
       if (daemon == null)
       {
-         daemon = new Daemon();
+         new Daemon();
       }
       return daemon;
    }
@@ -65,8 +65,9 @@ public class Daemon
     */
    Daemon()
    {
-      LOGGER.debug("Daemon created");
+      daemon = this;
 
+      LOGGER.debug("Daemon created");
       setupBusInterface();
 
       try
@@ -88,7 +89,7 @@ public class Daemon
     */
    void setupBusInterface()
    {
-      final String portName = "/dev/ttyUSB0";
+      //      final String portName = "/dev/ttyUSB0";
       BusInterface iface;
 
       try
@@ -123,7 +124,7 @@ public class Daemon
    /**
     * @return The event dispatcher.
     * 
-    * @see runLater
+    * @see #invokeLater(Runnable)
     */
    public EventDispatcher getEventDispatcher()
    {
@@ -142,13 +143,21 @@ public class Daemon
    }
 
    /**
+    * @return The daemon's script engine.
+    */
+   public JexlEngine getScriptEngine()
+   {
+      return jexl;
+   }
+
+   /**
     * Send a telegram.
     * 
     * @param telegram - the telegram to send.
     */
    protected void sendTelegram(Telegram telegram)
    {
-      if (telegram.getDest() != null && busInterface != null)
+      if (busInterface != null)
       {
          try
          {
@@ -161,21 +170,19 @@ public class Daemon
       }
       else
       {
-         if (telegram.getDest() instanceof GroupAddress)
-            storeGroupValue(telegram);
-
-         eventDispatcher.telegramReceived(telegram);
+         telegramListener.telegramSent(telegram);
       }
    }
 
    /**
-    * Send a {@link ApplicationType#GroupValue_Write group-value write} telegram
+    * Send a {@link ApplicationType#GroupValue_Write group-value write} telegram.
     * 
     * @param dest - the destination group address
     * @param dataType - the data type
     * @param data - the data value
+    * @param fireEvents - shall the telegram sending trigger group-variable events?
     */
-   public void sendTelegram(GroupAddress dest, DataPointType dataType, byte[] data)
+   public void sendTelegram(GroupAddress dest, DataPointType dataType, byte[] data, boolean fireEvents)
    {
       GroupValueWrite app = new GroupValueWrite();
 
@@ -185,6 +192,9 @@ public class Daemon
 
       Telegram telegram = new Telegram(app);
       telegram.setDest(dest);
+
+      if (!fireEvents)
+         telegram.setUserData("noEvents");
 
       sendTelegram(telegram);
    }
@@ -198,37 +208,16 @@ public class Daemon
    }
 
    /**
-    * If the telegram is a {@link ApplicationType#GroupValue_Write} or
-    * {@link ApplicationType#GroupValue_Response} telegram, then store the value of the telegram in
-    * the internal group-value cache.
+    * Add a telegram to the history.
     * 
-    * @param telegram - the telegram
+    * @param telegram - the telegram to add.
     */
-   protected synchronized void storeGroupValue(Telegram telegram)
+   protected synchronized void addToTelegramHistory(Telegram telegram)
    {
-      ApplicationType type = telegram.getApplicationType();
-
-      Address dest = telegram.getDest();
-      if (!(dest instanceof GroupAddress) || project == null)
-         return;
-
-      telegramHistory.add(telegram.clone());
-
-      while (telegramHistory.size() > historySize)
+      while (telegramHistory.size() > telegramHistorySize)
          telegramHistory.poll();
 
-      if (type.equals(ApplicationType.GroupValue_Write) || type.equals(ApplicationType.GroupValue_Response))
-      {
-         GenericDataApplication app = (GenericDataApplication) telegram.getApplication();
-
-         Variable group = project.getVariable((GroupAddress) dest);
-         if (group == null)
-            return;
-
-         if (group.getType().isUsingApci())
-            group.setRawValue(app.getApciData());
-         else group.setRawValue(app.getData());
-      }
+      telegramHistory.add(telegram.clone());
    }
 
    /**
@@ -246,11 +235,19 @@ public class Daemon
          throw new FileNotFoundException("File not found in class path: " + fileName);
       }
 
-      final ProjectImporter importer = new ProjectImporter();
-      final Project project = importer.readProject(in);
+      ProjectImporter importer = new ProjectImporter();
+      project = importer.readProject(in);
 
-      this.project = project;
-      initPrograms();
+      postLoadProject();
+   }
+
+   /**
+    * Things to be done after loading a project.
+    * 
+    * Called by {@link #loadProject(String)}.
+    */
+   protected void postLoadProject()
+   {
    }
 
    /**
@@ -278,49 +275,127 @@ public class Daemon
    }
 
    /**
-    * Initialize the project's programs.
+    * Register a telegram listener.
+    * 
+    * @param listener - the listener to add
     */
-   public void initPrograms()
+   public void addTelegramListener(GroupTelegramListener listener)
    {
-      for (Program program : project.getPrograms())
-         initProgram(program);
+      telegramListeners.add(listener);
    }
 
    /**
-    * Initialize a program.
+    * Unregister a telegram listener.
     * 
-    * @param program - the program to initialize
+    * @param listener - the listener to remove
     */
-   protected void initProgram(Program program)
+   public void removeTelegramListener(GroupTelegramListener listener)
    {
-      Expression expr = jexl.createExpression(program.getCode());
-      program.setExpression(expr);
-
-      for (AbstractProgramConnector connector : program.getConnectors())
-      {
-         // TODO
-      }
+      telegramListeners.remove(listener);
    }
 
+   /**
+    * Inform all telegram listeners about a telegram.
+    * 
+    * @param telegram - the telegram.
+    */
+   public void fireTelegramReceived(Telegram telegram)
+   {
+      for (GroupTelegramListener listener : telegramListeners)
+         listener.telegramReceived(telegram);
+   }
+
+   /**
+    * Inform all telegram listeners about a telegram.
+    * 
+    * @param telegram - the telegram.
+    */
+   public void fireTelegramSent(Telegram telegram)
+   {
+      for (GroupTelegramListener listener : telegramListeners)
+         listener.telegramSent(telegram);
+   }
+
+   /**
+    * Get the group variable for the telegram.
+    * 
+    * @param telegram - the telegram
+    * @return The group variable, or null if not found
+    */
+   protected GroupVariable getVariable(Telegram telegram)
+   {
+      GroupAddress addr = (GroupAddress) telegram.getDest();
+
+      GroupVariable var = project.getVariable(addr);
+      if (var == null)
+         LOGGER.debug("Ignoring telegram for unkown group {}", addr);
+
+      return var;
+   }
+
+   /**
+    * The internal telegram listener.
+    */
    private final TelegramListener telegramListener = new TelegramListener()
    {
+      /**
+       * {@inheritDoc}
+       */
       @Override
-      public void telegramSent(Telegram telegram)
+      public void telegramSent(final Telegram telegram)
       {
+         if (!(telegram.getDest() instanceof GroupAddress))
+            return;
+
          LOGGER.debug("Telegram sent: {}", telegram);
-         if (telegram.getDest() instanceof GroupAddress)
-            storeGroupValue(telegram);
+         addToTelegramHistory(telegram);
+
+         GroupVariable var = getVariable(telegram);
+         if (var != null && var.isRead())
+         {
+            GenericDataApplication app = (GenericDataApplication) telegram.getApplication();
+            var.setRawValue(app.getApciData(), !"noEvents".equals(telegram.getUserData()));
+         }
+
+         eventDispatcher.invokeLater(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               LOGGER.debug("Telegram event: {}", telegram);
+               fireTelegramSent(telegram);
+            }
+         });
       }
 
+      /**
+       * {@inheritDoc}
+       */
       @Override
-      public void telegramReceived(Telegram telegram)
+      public void telegramReceived(final Telegram telegram)
       {
+         if (!(telegram.getDest() instanceof GroupAddress))
+            return;
+
          LOGGER.debug("Telegram received: {}", telegram);
-         if (telegram.getDest() instanceof GroupAddress)
+         addToTelegramHistory(telegram);
+
+         GroupVariable var = getVariable(telegram);
+         if (var != null)
          {
-            storeGroupValue(telegram);
-            eventDispatcher.telegramReceived(telegram);
+            GenericDataApplication app = (GenericDataApplication) telegram.getApplication();
+            var.setRawValue(app.getApciData(), !"noEvents".equals(telegram.getUserData()));
          }
+
+         eventDispatcher.invokeLater(new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               LOGGER.debug("Telegram event: {}", telegram);
+               fireTelegramReceived(telegram);
+            }
+         });
       }
    };
 }

@@ -2,6 +2,7 @@ package org.selfbus.sbhome.process;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.jexl2.JexlContext;
 
@@ -77,5 +78,13 @@ public class Context implements JexlContext
    public Context getParent()
    {
       return parent;
+   }
+
+   /**
+    * @return All keys that the context contains, excluding the parent context(s).
+    */
+   public Set<String> localKeySet()
+   {
+      return map.keySet();
    }
 }

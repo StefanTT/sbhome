@@ -5,7 +5,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * Declaration of a history view that shows the contents of the daemon's telegram history.

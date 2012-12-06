@@ -3,11 +3,14 @@ package org.selfbus.sbhome.model.variable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.Category;
+import org.selfbus.sbhome.model.base.Namespaces;
+import org.selfbus.sbhome.service.Daemon;
 
 /**
  * A group variable is a {@link Variable} that has an EIB group address. Changing the value of the
@@ -21,6 +24,28 @@ public class GroupVariable extends Variable
    private GroupAddress addr;
    private boolean read = true;
    private boolean write = true;
+
+   @XmlIDREF
+   @XmlAttribute(required = true)
+   private Category category;
+
+   /**
+    * @return The category.
+    */
+   public Category getCategory()
+   {
+      return category;
+   }
+
+   /**
+    * Set the category.
+    * 
+    * @param category - the category to set
+    */
+   public void setCategory(Category category)
+   {
+      this.category = category;
+   }
 
    /**
     * @return The group address, or null if undefined
@@ -97,5 +122,20 @@ public class GroupVariable extends Variable
    {
       Validate.notNull(write);
       this.write = write;
+   }
+
+   /**
+    * Set the value of the variable. The value is copied. Fires the {@link #fireValueChanged() value
+    * changed} event.
+    * 
+    * @param value - the value to set, may be null
+    */
+   @Override
+   public void setValue(Object value)
+   {
+      super.setValue(value);
+
+      if (write)
+         Daemon.getInstance().sendTelegram(addr, getType(), getRawValue(), false);
    }
 }

@@ -14,5 +14,12 @@ public interface GroupTelegramListener extends EventListener
     * 
     * @param telegram - the received telegram.
     */
-   public void telegramReceived(final Telegram telegram);
+   public void telegramReceived(Telegram telegram);
+
+   /**
+    * A group {@link Telegram telegram} was sent.
+    * 
+    * @param telegram - the received telegram.
+    */
+   public void telegramSent(Telegram telegram);
 }

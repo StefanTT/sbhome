@@ -6,8 +6,9 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
-import org.selfbus.sbhome.base.Identified;
-import org.selfbus.sbhome.base.Labeled;
+import org.selfbus.sbhome.model.base.Identified;
+import org.selfbus.sbhome.model.base.Labeled;
+import org.selfbus.sbhome.model.base.Named;
 
 /**
  * Utility methods for sorting.
@@ -45,6 +46,25 @@ public class SortUtils
 
       for (E item : items)
          sorter.put(item.getId(), item);
+
+      List<E> result = new Vector<E>(items.size());
+      result.addAll(sorter.values());
+
+      return result;
+   }
+
+   /**
+    * Sort the items by name.
+    * 
+    * @param items - the items to sort.
+    * @return The items, sorted by name.
+    */
+   public static <E extends Named> List<E> sortByName(Collection<E> items)
+   {
+      Map<String, E> sorter = new TreeMap<String, E>();
+
+      for (E item : items)
+         sorter.put(item.getName(), item);
 
       List<E> result = new Vector<E>(items.size());
       result.addAll(sorter.values());

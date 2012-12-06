@@ -2,6 +2,7 @@ package org.selfbus.sbhome.model;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -10,8 +11,8 @@ import java.io.InputStream;
 
 import org.freebus.knxcomm.application.value.DataPointType;
 import org.junit.Test;
-import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.ProjectImporter;
+import org.selfbus.sbhome.model.module.Module;
+import org.selfbus.sbhome.model.variable.GroupVariable;
 import org.selfbus.sbhome.model.variable.Variable;
 
 
@@ -26,8 +27,8 @@ public class TestProjectImporter
          "<project name=\"project-1\" startPanel=\"panel.1\">\n" +
          " <categories><category id=\"cat1\" /></categories>\n" +
          " <variables>\n" +
-         "  <variable name=\"var1\" type=\"bool\" category=\"cat1\" />\n" +
-         "  <variable name=\"var2\" type=\"unsigned short\" category=\"cat1\" />\n" +
+         "  <variable name=\"var1\" type=\"bool\" />\n" +
+         "  <variable name=\"var2\" type=\"unsigned short\" />\n" +
          " </variables>\n" +
          " <groups>\n" +
          "  <group name=\"group1\" addr=\"1/0/100\" type=\"bool\" category=\"cat1\" />\n" +
@@ -60,10 +61,23 @@ public class TestProjectImporter
       final Project project = importer.readProject(file); 
       assertNotNull(project);
 
-      Variable group = project.getVariable("light.1");
-      assertNotNull(group);
-      assertEquals(DataPointType.BOOL, group.getType());
-      assertNotNull(group.getCategory());
-      assertEquals("light", group.getCategory().getId());
+      assertNotNull(project.getRoom("living"));
+      assertNull(project.getRoom("no-such-room"));
+
+      Variable var = project.getVariable("b1");
+      assertNotNull(var);
+      assertEquals(DataPointType.BOOL, var.getType());
+
+      GroupVariable groupVar = (GroupVariable) project.getVariable("light1");
+      assertNotNull(groupVar);
+      assertEquals(DataPointType.BOOL, groupVar.getType());
+      assertNotNull(groupVar.getCategory());
+      assertEquals("light", groupVar.getCategory().getId());
+
+      Module module = project.getModule("my.and");
+      assertNotNull(module);
+
+      assertNotNull(module.getVariable("tmp"));
+      assertNotNull(module.getVariable("in1"));
    }
 }

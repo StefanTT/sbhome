@@ -1,17 +1,10 @@
 package org.selfbus.sbhome.service;
 
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.Semaphore;
 
-import org.freebus.fts.common.address.GroupAddress;
-import org.freebus.knxcomm.application.ApplicationType;
-import org.freebus.knxcomm.application.GroupValueWrite;
-import org.freebus.knxcomm.telegram.Telegram;
 import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.variable.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +19,6 @@ public class EventDispatcher
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(EventDispatcher.class);
 
-   private final Set<GroupTelegramListener> telegramListeners = new CopyOnWriteArraySet<GroupTelegramListener>();
    private final Queue<Object> workQueue = new ConcurrentLinkedQueue<Object>();
    private final Semaphore workSemaphore = new Semaphore(0);
    private Dispatcher dispatcherThread;
@@ -74,53 +66,6 @@ public class EventDispatcher
    }
 
    /**
-    * A group {@link Telegram telegram} was received.
-    * 
-    * @param telegram - the received telegram.
-    */
-   public void telegramReceived(final Telegram telegram)
-   {
-      // Remember the value if it is a group telegram
-      if (telegram.getApplicationType().equals(ApplicationType.GroupValue_Write))
-      {
-         final GroupAddress addr = (GroupAddress) telegram.getDest();
-         final GroupValueWrite app = (GroupValueWrite) telegram.getApplication();
-
-         final Variable grp = project.getVariable(addr);
-         if (grp == null)
-         {
-            LOGGER.debug("Ignoring telegram for unkown group {}", addr);
-            return;
-         }
-
-         grp.setRawValue(app.getApciData());
-
-         workQueue.add(telegram);
-         workSemaphore.release();
-      }
-   }
-
-   /**
-    * Register a telegram listener.
-    * 
-    * @param listener - the listener to add
-    */
-   public void addTelegramListener(GroupTelegramListener listener)
-   {
-      telegramListeners.add(listener);
-   }
-
-   /**
-    * Unregister a telegram listener.
-    * 
-    * @param listener - the listener to remove
-    */
-   public void removeTelegramListener(GroupTelegramListener listener)
-   {
-      telegramListeners.remove(listener);
-   }
-
-   /**
     * The class for the event dispatcher thread.
     */
    private class Dispatcher extends Thread
@@ -150,15 +95,7 @@ public class EventDispatcher
 
             try
             {
-               if (work instanceof Telegram)
-               {
-                  final Telegram telegram = (Telegram) work;
-                  LOGGER.info("Telegram event: {}", telegram);
-
-                  for (GroupTelegramListener listener : telegramListeners)
-                     listener.telegramReceived(telegram);
-               }
-               else if (work instanceof Runnable)
+               if (work instanceof Runnable)
                {
                   Runnable doRun = (Runnable) work;
                   doRun.run();

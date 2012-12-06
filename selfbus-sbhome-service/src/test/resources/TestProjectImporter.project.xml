@@ -4,10 +4,15 @@
   <category id="light" label="Lighting" />
   <category id="heating" label="Heating" />
  </categories>
+ <variables>
+  <variable name="b1" type="bool" />
+  <variable name="b2" type="bool" />
+  <variable name="b3" type="bool" />
+ </variables>
  <groups>
-  <group name="light.all" addr="1/0/100" type="bool" category="light" />
-  <group name="light.1" addr="1/0/101" type="bool" category="light" />
-  <group name="light.2" addr="1/0/102" type="unsigned byte" category="light" />
+  <group name="lightAll" addr="1/0/100" type="bool" category="light" />
+  <group name="light1" addr="1/0/101" type="bool" category="light" />
+  <group name="light2" addr="1/0/102" type="unsigned byte" category="light" />
  </groups>
  <moduleTypes>
   <moduleType name="logic.and">
@@ -20,7 +25,7 @@
     <![CDATA[ tmp = in1 && in2; out = tmp; ]]>
    </code>
   </moduleType>
-  <moduleType name="lightLogic1">
+  <moduleType name="logic.or">
    <input name="in1" type="bool" />
    <input name="in2" type="bool" />
    <output name="out" type="bool" />
@@ -29,18 +34,14 @@
    </code>
   </moduleType>
  </moduleTypes>
- <programs>
-  <program id="logic.or">
-   <connectors>
-    <input name="in1" variable="light-1" />
-    <input name="in2" variable="light-2" />
-    <output name="out" variable="light-4" />
-   </connectors>
-   <code>
-    <![CDATA[ out = in1 | in2 ]]>
-   </code>
-  </program>
- </programs>
+ <modules>
+  <module name="my.and" type = "logic.and" />
+ </modules>
+ <connections>
+  <connection from="b1" to="logic.and.1.in1" />
+  <connection from="b2" to="logic.and.1.in1" />
+  <connection from="my.and.out" to="b3" />
+ </connections>
  <rooms>
   <room id="living" label="Living Room">
    <item label="Central light" variable="light.1" />
