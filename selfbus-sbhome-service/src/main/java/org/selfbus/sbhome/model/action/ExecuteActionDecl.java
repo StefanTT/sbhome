@@ -8,28 +8,30 @@ import javax.xml.bind.annotation.XmlType;
 import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
- * Show a panel in the GUI.
+ * An action that executes a module.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = Namespaces.PROJECT)
-public class ShowPanelActionDecl extends AbstractActionDecl
+public class ExecuteActionDecl extends AbstractActionDecl
 {
-   @XmlAttribute(name = "panel")
-   protected String panel;
+   @XmlAttribute
+   protected String module;
 
    /**
-    * @return the ID of the panel
+    * @return The name of the module.
     */
-   public String getPanel()
+   public String getModule()
    {
-      return panel;
+      return module;
    }
 
    /**
-    * @param panel - the ID of the panel
+    * Set the name of the module.
+    *
+    * @param module - the name of the module.
     */
-   public void setPanel(String panel)
+   public void setModule(String module)
    {
-      this.panel = panel;
+      this.module = module;
    }
 }

@@ -30,16 +30,19 @@ public class TelegramHistory
       table.setSizeFull();
 
       Daemon daemon = Daemon.getInstance();
-      daemon.getEventDispatcher().addTelegramListener(new GroupTelegramListener()
+      daemon.addTelegramListener(new GroupTelegramListener()
       {
          @Override
          public void telegramReceived(Telegram telegram)
          {
             addTelegram(telegram);
+            table.commit();
+         }
 
-            while (table.size() > maxHistory)
-               table.removeItem(++firstItemId);
-
+         @Override
+         public void telegramSent(Telegram telegram)
+         {
+            addTelegram(telegram);
             table.commit();
          }
       });
@@ -70,8 +73,10 @@ public class TelegramHistory
    {
       synchronized (table)
       {
-         String[] cells = new String[1];
+         while (table.size() > maxHistory)
+            table.removeItem(++firstItemId);
 
+         String[] cells = new String[1];
          cells[0] = telegram.toString();
 
          table.addItem(cells, ++lastItemId);

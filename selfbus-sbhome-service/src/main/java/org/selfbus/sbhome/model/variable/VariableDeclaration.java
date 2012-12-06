@@ -7,8 +7,8 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.knxcomm.application.value.DataPointType;
-import org.selfbus.sbhome.base.AbstractNamed;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractNamed;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * The declaration of a variable (not the variable itself). Used e.g. for module types.
@@ -41,7 +41,7 @@ public class VariableDeclaration extends AbstractNamed
     * @return The data type as string.
     */
    @XmlAttribute(name = "type", required = true)
-   public String getTypeStr()
+   protected String getTypeStr()
    {
       return type.toString().toLowerCase().replace('_', ' ');
    }
@@ -51,7 +51,7 @@ public class VariableDeclaration extends AbstractNamed
     * 
     * @param typeStr - the data type to set as string.
     */
-   public void setTypeStr(String typeStr)
+   protected void setTypeStr(String typeStr)
    {
       DataPointType t = DataPointType.valueOf(typeStr.toUpperCase().replace(' ', '_'));
       Validate.notNull(t, "Variable data type is invalid: " + typeStr);

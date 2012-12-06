@@ -3,10 +3,8 @@ package org.selfbus.sbhome.model.module;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -14,10 +12,13 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.Script;
 import org.apache.commons.lang3.Validate;
-import org.selfbus.sbhome.base.AbstractNamed;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractNamed;
+import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.model.variable.VariableDeclaration;
+import org.selfbus.sbhome.service.Daemon;
 
 /**
  * A module type
@@ -26,9 +27,9 @@ import org.selfbus.sbhome.model.variable.VariableDeclaration;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ModuleType extends AbstractNamed
 {
-   private final Map<String, ModuleTypeConnector> connectors = new HashMap<String, ModuleTypeConnector>();
-   private final Set<VariableDeclaration> varDecls = new HashSet<VariableDeclaration>();
+   private final Map<String,VariableDeclaration> decls = new HashMap<String, VariableDeclaration>();
    private String code;
+   private Script script;
 
    /**
     * @return The regular expression for testing names.
@@ -55,25 +56,28 @@ public class ModuleType extends AbstractNamed
    public void setCode(String code)
    {
       this.code = code;
+
+      script = null;
+      getScript();
    }
 
    /**
-    * Get connector.
+    * Get a variable declaration.
     * 
     * @param name - the name of the connector.
-    * @return The connector, or null if not found.
+    * @return The variable declaration.
     */
-   public ModuleTypeConnector getConnector(String name)
+   public VariableDeclaration getDeclaration(String name)
    {
-      return connectors.get(name);
+      return decls.get(name);
    }
 
    /**
-    * @return The list of connectors.
+    * @return The variable declarations.
     */
-   public Collection<ModuleTypeConnector> getConnectors()
+   public Collection<VariableDeclaration> getDeclarations()
    {
-      return connectors.values();
+      return decls.values();
    }
 
    /**
@@ -90,26 +94,19 @@ public class ModuleType extends AbstractNamed
    })
    protected void setContents(List<Object> lst)
    {
-      connectors.clear();
-      varDecls.clear();
+      decls.clear();
 
       for (Object obj: lst)
       {
          if (obj instanceof String)
          {
             Validate.isTrue(code == null, "code block is allowed only once");
-            code = (String) obj;
-         }
-         else if (obj instanceof VariableDeclaration)
-         {
-            varDecls.add((VariableDeclaration) obj);
+            setCode((String) obj);
          }
          else
          {
-            ModuleTypeConnector con = (ModuleTypeConnector) obj;
-            Validate.isTrue(!connectors.containsKey(con.getName()), "connector name \"" + con.getName() + "\" used twice in module type " + name);
-
-            connectors.put(con.getName(), con);
+            VariableDeclaration decl = (VariableDeclaration) obj;
+            decls.put(decl.getName(), decl);
          }
       }
    }
@@ -120,10 +117,26 @@ public class ModuleType extends AbstractNamed
     */
    protected List<Object> getContents()
    {
-      List<Object> result = new ArrayList<Object>(connectors.size() + 1);
-      result.addAll(connectors.values());
-      result.addAll(varDecls);
+      List<Object> result = new ArrayList<Object>(decls.size() + 1);
+      result.addAll(decls.values());
       result.add(code);
       return result;
+   }
+
+   /**
+    * @return The script.
+    */
+   public synchronized Script getScript()
+   {
+      if (script == null)
+      {
+         JexlEngine jexl = Daemon.getInstance().getScriptEngine();
+         synchronized (jexl)
+         {
+            script = jexl.createScript(code);
+         }
+      }
+
+      return script;
    }
 }

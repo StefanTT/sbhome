@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.base;
+package org.selfbus.sbhome.model.base;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

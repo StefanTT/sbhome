@@ -5,11 +5,11 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.AbstractElement;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractElement;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
- * An item.
+ * A controller for a variable (or group).
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.FIELD)

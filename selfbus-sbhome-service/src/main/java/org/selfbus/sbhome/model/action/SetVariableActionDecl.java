@@ -5,48 +5,43 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
- * An action that sets the value of a group.
+ * An action that sets the value of a variable.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(namespace = Namespaces.PROJECT)
-public class SetGroupValueActionDecl extends AbstractActionDecl
+public class SetVariableActionDecl extends AbstractActionDecl
 {
-   @XmlAttribute(name = "group")
-   protected String group;
+   @XmlAttribute
+   protected String name;
 
-   @XmlAttribute(name = "value")
+   @XmlAttribute
    protected String value;
 
    /**
-    * Gets the value of the group property.
-    * 
-    * @return possible object is {@link String }
-    * 
+    * @return The name of the variable.
     */
-   public String getGroup()
+   public String getName()
    {
-      return group;
+      return name;
    }
 
    /**
-    * Sets the value of the group property.
+    * Set the name of the variable
     * 
-    * @param group allowed object is {@link String }
-    * 
+    * @param name - the name to set.
     */
-   public void setGroup(String group)
+   public void setName(String name)
    {
-      this.group = group;
+      this.name = name;
    }
 
    /**
     * Gets the value of the value property.
     * 
     * @return possible object is {@link String }
-    * 
     */
    public String getValue()
    {
@@ -57,7 +52,6 @@ public class SetGroupValueActionDecl extends AbstractActionDecl
     * Sets the value of the value property.
     * 
     * @param value allowed object is {@link String }
-    * 
     */
    public void setValue(String value)
    {

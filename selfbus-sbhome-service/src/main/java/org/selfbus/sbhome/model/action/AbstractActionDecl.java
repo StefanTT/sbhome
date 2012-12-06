@@ -11,8 +11,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.AbstractIdentified;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractIdentified;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * Abstract class for action declarations

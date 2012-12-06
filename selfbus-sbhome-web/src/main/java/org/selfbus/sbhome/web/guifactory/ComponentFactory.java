@@ -41,9 +41,9 @@ public class ComponentFactory
    private static final Logger LOGGER = LoggerFactory.getLogger(ComponentFactory.class);
 
    private final Evaluator evaluator;
-   private final ForeachCreator foreachCreator;
-   private final TriggerCreator triggerCreator;
-   private final ItemCreator itemCreator;
+   private final ForeachFactory foreachCreator;
+   private final TriggerFactory triggerCreator;
+   private final ControlFactory itemCreator;
 
    /**
     * Create a component factory.
@@ -56,9 +56,9 @@ public class ComponentFactory
    {
       this.evaluator = evaluator;
 
-      foreachCreator = new ForeachCreator(project, this);
-      triggerCreator = new TriggerCreator(project, application, this);
-      itemCreator = new ItemCreator(project, evaluator);
+      foreachCreator = new ForeachFactory(project, this);
+      triggerCreator = new TriggerFactory(project, application, this);
+      itemCreator = new ControlFactory(project, evaluator);
    }
 
    /**

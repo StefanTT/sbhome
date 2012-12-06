@@ -10,8 +10,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.Identified;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Identified;
+import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
 import org.selfbus.sbhome.model.trigger.ClickTriggerDecl;
 import org.selfbus.sbhome.model.trigger.KeyTriggerDecl;

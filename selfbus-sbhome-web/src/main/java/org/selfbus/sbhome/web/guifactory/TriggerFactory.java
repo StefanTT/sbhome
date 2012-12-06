@@ -3,11 +3,10 @@ package org.selfbus.sbhome.web.guifactory;
 import java.util.List;
 
 import org.apache.commons.lang3.Validate;
-import org.freebus.knxcomm.application.value.GroupValueUtils;
 import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.action.AbstractActionDecl;
 import org.selfbus.sbhome.model.action.ChangeItemActionDecl;
-import org.selfbus.sbhome.model.action.SetGroupValueActionDecl;
+import org.selfbus.sbhome.model.action.SetVariableActionDecl;
 import org.selfbus.sbhome.model.action.ShowPanelActionDecl;
 import org.selfbus.sbhome.model.gui.PanelDecl;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
@@ -30,9 +29,9 @@ import com.vaadin.ui.Button.ClickListener;
 /**
  * A creator that creates triggers.
  */
-public class TriggerCreator
+public class TriggerFactory
 {
-   private static final Logger LOGGER = LoggerFactory.getLogger(TriggerCreator.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(TriggerFactory.class);
 
    private final Project project;
    private final SbHomeApplication application;
@@ -46,13 +45,13 @@ public class TriggerCreator
     * @param application - the application
     * @param compFactory - the component factory
     */
-   public TriggerCreator(Project project, SbHomeApplication application, ComponentFactory compFactory)
+   public TriggerFactory(Project project, SbHomeApplication application, ComponentFactory compFactory)
    {
       this.project = project;
       this.application = application;
       this.compFactory = compFactory;
 
-      evaluator = new Evaluator(application.getJexl());
+      evaluator = new Evaluator(application.getScriptEngine());
    }
 
    /**
@@ -101,7 +100,7 @@ public class TriggerCreator
    }
 
    /**
-    * Create a telegram trigger that invokes the supplied actions when triggered.
+    * Create a value-change trigger that invokes the supplied actions when triggered.
     * 
     * @param ctx - the context
     * @param comp - the GUI component
@@ -109,11 +108,11 @@ public class TriggerCreator
     */
    protected void registerTrigger(final Context ctx, final AbstractComponent comp, final ValueChangeTriggerDecl trigger)
    {
-      String groupName = trigger.getGroup();
-      Variable group = (Variable) evaluator.eval(ctx, groupName);
-      Validate.notNull(group, "unknown group: " + groupName);
+      String name = trigger.getGroup();
+      Variable var = (Variable) evaluator.eval(ctx, name);
+      Validate.notNull(var, "unknown variable: " + name);
 
-      group.addListener(new VariableListener()
+      var.addListener(new VariableListener()
       {
          @Override
          public void valueChanged(Variable group)
@@ -193,13 +192,13 @@ public class TriggerCreator
     */
    public void performAction(final Context ctx, AbstractComponent comp, AbstractActionDecl action)
    {
-      if (action instanceof SetGroupValueActionDecl)
+      if (action instanceof SetVariableActionDecl)
       {
-         final SetGroupValueActionDecl gvAction = (SetGroupValueActionDecl) action;
+         final SetVariableActionDecl gvAction = (SetVariableActionDecl) action;
 
-         String groupRef = gvAction.getGroup();
-         Variable group = (Variable) evaluator.eval(ctx, groupRef);
-         Validate.notNull(group, "Invalid group: " + groupRef);
+         String varRef = gvAction.getName();
+         Variable group = (Variable) evaluator.eval(ctx, varRef);
+         Validate.notNull(group, "Unknown variable: " + varRef);
 
          group.setStringValue(gvAction.getValue());
       }

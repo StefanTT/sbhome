@@ -1,4 +1,4 @@
-package org.selfbus.sbhome.base;
+package org.selfbus.sbhome.model.base;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -33,7 +33,7 @@ public abstract class AbstractNamed implements Named
     */
    public void setName(String name)
    {
-      Validate.isTrue(name.matches(getNameRegex()), "Name \"" + name + "\" contains invalid characters");
+      Validate.isTrue(name.matches(getNameRegex()), getClass().getSimpleName() + " name \"" + name + "\" contains invalid characters.");
       this.name = name;
    }
 

@@ -4,8 +4,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.AbstractElement;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.AbstractElement;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * A category which is used to categorize items.

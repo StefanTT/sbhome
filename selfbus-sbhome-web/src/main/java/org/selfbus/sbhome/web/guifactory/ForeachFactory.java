@@ -10,13 +10,14 @@ import org.selfbus.sbhome.model.Project;
 import org.selfbus.sbhome.model.Room;
 import org.selfbus.sbhome.model.gui.AbstractComponentDecl;
 import org.selfbus.sbhome.model.gui.generator.Foreach;
+import org.selfbus.sbhome.model.variable.GroupVariable;
 import org.selfbus.sbhome.model.variable.Variable;
 import org.selfbus.sbhome.process.Context;
 
 /**
  * A component creator that creates elements for a {@link Foreach} declaration.
  */
-public class ForeachCreator
+public class ForeachFactory
 {
    private final Project project;
    private final ComponentFactory compFactory;
@@ -27,7 +28,7 @@ public class ForeachCreator
     * @param project - the project
     * @param compFactory - the component factory
     */
-   public ForeachCreator(Project project, ComponentFactory compFactory)
+   public ForeachFactory(Project project, ComponentFactory compFactory)
    {
       this.project = project;
       this.compFactory = compFactory;
@@ -96,8 +97,10 @@ public class ForeachCreator
                }
                else
                {
-                  Variable group = project.getVariable(item.getVariable());
-                  if (group != null && parentCategory.equals(group.getCategory()))
+                  String itemName = item.getVariable();
+
+                  Variable var = project.getVariable(itemName);
+                  if (var instanceof GroupVariable && parentCategory.equals(((GroupVariable) var).getCategory()))
                   {
                      for (AbstractComponentDecl child : childs)
                         compFactory.createComponent(itemCtx, child, proc);

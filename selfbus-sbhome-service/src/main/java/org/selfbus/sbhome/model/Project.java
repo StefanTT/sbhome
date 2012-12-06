@@ -1,5 +1,6 @@
 package org.selfbus.sbhome.model;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,19 +13,24 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.model.gui.PanelDecl;
+import org.selfbus.sbhome.model.module.Module;
 import org.selfbus.sbhome.model.module.ModuleType;
-import org.selfbus.sbhome.model.module.Program;
+import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
+import org.selfbus.sbhome.model.variable.Connection;
 import org.selfbus.sbhome.model.variable.GroupVariable;
 import org.selfbus.sbhome.model.variable.Variable;
 
 /**
  * A project.
+ * 
+ * @see postLoad
  */
 @XmlType(name = "project", namespace = Namespaces.PROJECT, propOrder = {})
 @XmlAccessorType(XmlAccessType.NONE)
@@ -40,9 +46,11 @@ public class Project
    private Map<String, Variable> vars;
    private Map<String, ModuleType> moduleTypes;
    private Map<String, Category> categories;
-   private Map<String, Room> rooms;
+   private final Map<String, Room> rooms = new HashMap<String, Room>();
    private List<PanelDecl> panels;
-   private Set<Program> programs;
+   private final Map<String, Module> modules = new HashMap<String, Module>();
+   private Set<Connection> connections;
+   private Set<AbstractTriggerDecl> triggers;
 
    /**
     * Gets the value of the name property.
@@ -131,24 +139,41 @@ public class Project
     * Get a specific group variable by group address.
     * 
     * @param addr - the address of the variable to get.
-    * @return The variable, or null if the address is unknown.
+    * @return The variable.
+    * 
+    * @throws IllegalArgumentException if the address is unknown.
     */
-   public Variable getVariable(GroupAddress addr)
+   public GroupVariable getVariable(GroupAddress addr)
    {
+      Validate.isTrue(groupVars.containsKey(addr), "Group address does not exist: " + addr);
       return groupVars.get(addr);
    }
 
    /**
-    * Get a specific variable.
+    * Get a specific variable. Group and module variables can also be accessed with this method.
     * 
     * @param name - the name of the variable to get.
     * @return The group.
+    * 
     * @throws IllegalArgumentException if no group with the ID exists
     */
    public Variable getVariable(String name)
    {
-      Validate.isTrue(vars.containsKey(name), "invalid variable \"" + name + "\"");
-      return vars.get(name);
+      if (vars.containsKey(name))
+         return vars.get(name);
+
+      int idx = name.lastIndexOf('.');
+      if (idx > 0)
+      {
+         String moduleName = name.substring(0, idx);
+         String varName = name.substring(idx + 1);
+
+         Module module = getModule(moduleName);
+         if (module != null && module.containsVariable(varName))
+            return module.getVariable(varName);
+      }
+
+      throw new IllegalArgumentException("Variable does not exist: " + name);
    }
 
    /**
@@ -244,38 +269,80 @@ public class Project
    }
 
    /**
-    * @return The programs.
+    * Get a module.
+    * 
+    * @param name - the name of the module to get.
+    * @return The group.
+    * 
+    * @throws IllegalArgumentException if no module with the name exists
     */
-   @XmlElementWrapper(name = "programs")
-   @XmlElement(name = "program")
-   public synchronized Set<Program> getPrograms()
+   public Module getModule(String name)
    {
-      if (programs == null)
-         programs = new HashSet<Program>();
-
-      return programs;
+      Validate.isTrue(modules.containsKey(name), "Module does not exist: " + name);
+      return modules.get(name);
    }
 
    /**
-    * Set the programs.
-    *
-    * @param programs - the programs to set
+    * @return The modules.
     */
-   public void setPrograms(Set<Program> programs)
+   @XmlElementWrapper(name = "modules")
+   @XmlElement(name = "module")
+   public List<Module> getModules()
    {
-      this.programs = programs;
+      if (modules == null)
+         return new ArrayList<Module>();
+
+      final List<Module> result = new Vector<Module>(modules.size());
+      result.addAll(modules.values());
+      return result;
+   }
+
+   /**
+    * Set the modules.
+    * 
+    * @param modules - the modules to set
+    */
+   public void setModules(List<Module> modules)
+   {
+      this.modules.clear();
+
+      for (Module module : modules)
+         this.modules.put(module.getName(), module);
+   }
+
+   /**
+    * @return The connections.
+    */
+   @XmlElementWrapper(name = "connections")
+   @XmlElement(name = "connection")
+   public synchronized Set<Connection> getConnections()
+   {
+      if (connections == null)
+         connections = new HashSet<Connection>();
+
+      return connections;
+   }
+
+   /**
+    * Set the connections.
+    * 
+    * @param connections - the connections to set
+    */
+   public synchronized void setConnections(Set<Connection> connections)
+   {
+      this.connections = connections;
    }
 
    /**
     * Get a room.
     * 
-    * @param id - the ID of the room
+    * @param name - the name of the room
     * 
     * @return The room, or null if not found.
     */
-   public Room getRoom(String id)
+   public Room getRoom(String name)
    {
-      return rooms.get(id);
+      return rooms.get(name);
    }
 
    /**
@@ -299,12 +366,15 @@ public class Project
     */
    public void setRooms(List<Room> rooms)
    {
-      final Map<String, Room> newRooms = new HashMap<String, Room>(rooms.size() * 3);
+      this.rooms.clear();
 
       for (final Room room : rooms)
-         newRooms.put(room.getId(), room);
+      {
+         if (this.rooms.containsKey(room.getId()))
+            throw new IllegalArgumentException("Room name is not unique: " + room.getId());
 
-      this.rooms = newRooms;
+         this.rooms.put(room.getId(), room);
+      }
    }
 
    /**
@@ -341,5 +411,80 @@ public class Project
    public void setPanels(List<PanelDecl> panels)
    {
       this.panels = panels;
+   }
+
+   /**
+    * @return The global triggers
+    */
+   @XmlElementWrapper(name = "triggers")
+   @XmlElements
+   ({
+      @XmlElement(name = "cronTrigger")
+   })
+   public Set<AbstractTriggerDecl> getTriggers()
+   {
+      return triggers;
+   }
+
+   /**
+    * Set the global triggers.
+    *
+    * @param triggers - the triggers to set
+    */
+   public void setTriggers(Set<AbstractTriggerDecl> triggers)
+   {
+      this.triggers = triggers;
+   }
+
+   /**
+    * To be called after loading a project.
+    * 
+    * The ProjectImporter's readProject methods call this method.
+    */
+   public void postLoad()
+   {
+      setupModules();
+      setupConnections();
+   }
+
+   /**
+    * Setup the modules.
+    */
+   protected void setupModules()
+   {
+      for (Module module : modules.values())
+      {
+         ModuleType moduleType = moduleTypes.get(module.getModuleTypeName());
+         if (moduleType == null)
+         {
+            throw new IllegalArgumentException("Module \"" + module.getName() + "\" has an unknown module type \""
+               + module.getModuleTypeName() + "\"");
+         }
+
+         module.setModuleType(moduleType);
+      }
+   }
+
+   /**
+    * Setup the connections.
+    */
+   protected void setupConnections()
+   {
+      if (connections == null)
+         return;
+
+      for (Connection connection : connections)
+      {
+         Variable varFrom = getVariable(connection.getFrom());
+         Variable varTo = getVariable(connection.getTo());
+
+         if (varFrom.getType() != varTo.getType())
+         {
+            throw new IllegalArgumentException("Cannot connect from " + connection.getFrom() + " to "
+               + connection.getTo() + ": type mismatch");
+         }
+
+         varFrom.addListener(varTo);
+      }
    }
 }

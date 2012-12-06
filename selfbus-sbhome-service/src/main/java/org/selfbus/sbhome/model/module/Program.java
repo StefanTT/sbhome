@@ -12,7 +12,7 @@ import javax.xml.bind.annotation.XmlTransient;
 import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.jexl2.Expression;
-import org.selfbus.sbhome.base.Namespaces;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * A small script. 

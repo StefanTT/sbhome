@@ -10,11 +10,11 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
 
-import org.selfbus.sbhome.base.Namespaces;
 import org.selfbus.sbhome.model.action.AbstractActionDecl;
 import org.selfbus.sbhome.model.action.ChangeItemActionDecl;
-import org.selfbus.sbhome.model.action.SetGroupValueActionDecl;
+import org.selfbus.sbhome.model.action.SetVariableActionDecl;
 import org.selfbus.sbhome.model.action.ShowPanelActionDecl;
+import org.selfbus.sbhome.model.base.Namespaces;
 
 /**
  * Abstract base class for triggers.
@@ -26,8 +26,9 @@ public abstract class AbstractTriggerDecl
 {
    @XmlElements
    ({
+      @XmlElement(name = "execute", type = ShowPanelActionDecl.class),
       @XmlElement(name = "changeItem", type = ChangeItemActionDecl.class),
-      @XmlElement(name = "setValue", type = SetGroupValueActionDecl.class),
+      @XmlElement(name = "setVariable", type = SetVariableActionDecl.class),
       @XmlElement(name = "showPanel", type = ShowPanelActionDecl.class),
    })
    private List<AbstractActionDecl> actions;

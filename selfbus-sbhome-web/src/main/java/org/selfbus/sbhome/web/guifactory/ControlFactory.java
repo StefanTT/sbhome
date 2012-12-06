@@ -15,29 +15,29 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.ui.AbstractComponent;
 
 /**
- * Factory class that creates GUI elements for {@link Item items}.
+ * Factory class that creates GUI elements for {@link Control controls}.
  */
-public class ItemCreator
+public class ControlFactory
 {
-   private static final Logger LOGGER = LoggerFactory.getLogger(ItemCreator.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(ControlFactory.class);
 
    private final Project project;
    private final Evaluator evaluator;
 
    /**
-    * Create a component creator that creates GUI elements for {@link Item items}.
+    * Create a component creator that creates GUI elements for {@link Control controls}.
     * 
     * @param project - the project
     * @param evaluator - the evaluator to use
     */
-   public ItemCreator(Project project, Evaluator evaluator)
+   public ControlFactory(Project project, Evaluator evaluator)
    {
       this.project = project;
       this.evaluator = evaluator;
    }
 
    /**
-    * Create GUI elements to represent the item.
+    * Create GUI elements to represent the control.
     * 
     * @param ctx - the context
     * @param itemController - the item controller to process
