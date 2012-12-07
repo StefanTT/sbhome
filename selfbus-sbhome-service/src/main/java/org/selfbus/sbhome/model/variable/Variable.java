@@ -117,7 +117,7 @@ public class Variable extends AbstractNamed implements VariableListener
    {
       if (value == null)
       {
-         value =  type.newValueObject();
+         value = type.newValueObject();
          modified = false;
       }
 
@@ -148,22 +148,35 @@ public class Variable extends AbstractNamed implements VariableListener
 
       LOGGER.debug("{} = {}", name, value);
 
-      if (modified && (value == this.value || value.equals(this.value)))
-         return;
-
-      modified = true;
-
-      Class<?> typeClass = type.getValueClass();
-      if (typeClass != null && value.getClass() != typeClass)
+      if (!modified || !value.equals(this.value))
       {
-         throw new IllegalArgumentException("Cannot assign a " + value.getClass() + " value to the " + getTypeStr()
-            + " variable " + getName());
-      }
+         modified = true;
 
-      this.value = value;
+         Class<?> typeClass = type.getValueClass();
+         if (typeClass != null && value.getClass() != typeClass)
+         {
+            throw new IllegalArgumentException("Cannot assign a " + value.getClass() + " value to the " + getTypeStr()
+               + " variable " + getName());
+         }
+
+         this.value = value;
+      }
+      else if (!isFireAlways())
+      {
+         return;
+      }
 
       if (fireEvents && !listeners.isEmpty())
          fireValueChanged();
+   }
+
+   /**
+    * @return True if events shall be fired even if the value did not change when {@link #setValue}
+    *         was called.
+    */
+   protected boolean isFireAlways()
+   {
+      return false;
    }
 
    /**

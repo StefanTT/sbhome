@@ -20,6 +20,7 @@ import org.apache.commons.lang3.Validate;
 import org.freebus.fts.common.address.GroupAddress;
 import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.model.gui.PanelDecl;
+import org.selfbus.sbhome.model.module.AbstractModule;
 import org.selfbus.sbhome.model.module.Module;
 import org.selfbus.sbhome.model.module.ModuleType;
 import org.selfbus.sbhome.model.trigger.AbstractTriggerDecl;
@@ -168,7 +169,7 @@ public class Project
          String moduleName = name.substring(0, idx);
          String varName = name.substring(idx + 1);
 
-         Module module = getModule(moduleName);
+         AbstractModule module = getModule(moduleName);
          if (module != null && module.containsVariable(name))
             return module.getVariable(name);
       }
@@ -276,7 +277,7 @@ public class Project
     * 
     * @throws IllegalArgumentException if no module with the name exists
     */
-   public Module getModule(String name)
+   public AbstractModule getModule(String name)
    {
       Validate.isTrue(modules.containsKey(name), "Module does not exist: " + name);
       return modules.get(name);

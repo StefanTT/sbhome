@@ -39,13 +39,6 @@ class ModuleVariable extends Variable
    {
       super(decl);
    }
-   /**
-    * @return True if setting the variable value shall always trigger an execution of the module.
-    */
-   public boolean isTriggerAlways()
-   {
-      return triggerAlways;
-   }
 
    /**
     * Set if setting the variable value shall always trigger an execution of the module.
@@ -58,7 +51,24 @@ class ModuleVariable extends Variable
    }
 
    /**
-    * @return The regular expression for testing names.
+    * @return True if setting the variable value shall always trigger an execution of the module.
+    */
+   public boolean isTriggerAlways()
+   {
+      return triggerAlways;
+   }
+
+   /**
+    * {@inheritDoc}
+    */
+   @Override
+   protected boolean isFireAlways()
+   {
+      return triggerAlways;
+   }
+
+   /**
+    * {@inheritDoc}
     */
    @Override
    protected String getNameRegex()

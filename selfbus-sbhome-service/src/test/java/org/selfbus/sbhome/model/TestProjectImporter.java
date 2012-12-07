@@ -11,7 +11,7 @@ import java.io.InputStream;
 
 import org.freebus.knxcomm.application.value.DataPointType;
 import org.junit.Test;
-import org.selfbus.sbhome.model.module.Module;
+import org.selfbus.sbhome.model.module.AbstractModule;
 import org.selfbus.sbhome.model.variable.GroupVariable;
 import org.selfbus.sbhome.model.variable.Variable;
 
@@ -74,7 +74,7 @@ public class TestProjectImporter
       assertNotNull(groupVar.getCategory());
       assertEquals("light", groupVar.getCategory().getId());
 
-      Module module = project.getModule("my.and");
+      AbstractModule module = project.getModule("my.and");
       assertNotNull(module);
 
       assertNotNull(module.getVariable("tmp"));

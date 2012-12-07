@@ -1,8 +1,5 @@
 package org.selfbus.sbhome.model.module;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -11,15 +8,10 @@ import javax.xml.bind.annotation.XmlType;
 
 import org.apache.commons.jexl2.JexlEngine;
 import org.apache.commons.jexl2.Script;
-import org.apache.commons.lang3.Validate;
-import org.selfbus.sbhome.model.base.AbstractNamed;
 import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.model.variable.Variable;
-import org.selfbus.sbhome.model.variable.VariableDeclaration;
-import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
 import org.selfbus.sbhome.service.Daemon;
-import org.selfbus.sbhome.service.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,53 +20,14 @@ import org.slf4j.LoggerFactory;
  */
 @XmlType(namespace = Namespaces.PROJECT)
 @XmlAccessorType(XmlAccessType.NONE)
-public class Module extends AbstractNamed
+public class Module extends AbstractModule
 {
-   private static final Logger LOGGER = LoggerFactory.getLogger(Module.class);
+   static final Logger LOGGER = LoggerFactory.getLogger(Module.class);
 
    @XmlAttribute(name = "type", required = true)
    private String moduleTypeName;
 
-   @XmlAttribute(name = "order", required = false)
-   private Integer order;
-
-   private ModuleType moduleType;
-   private final Map<String, Variable> vars = new HashMap<String, Variable>();
-   private boolean scheduled;
-
-   /**
-    * Get a specific variable. Group variables can also be accessed with this method.
-    * 
-    * @param name - the name of the variable to get.
-    * @return The group.
-    * 
-    * @throws IllegalArgumentException if no group with the ID exists
-    */
-   public Variable getVariable(String name)
-   {
-      Validate.isTrue(vars.containsKey(name), "Variable does not exist: " + name);
-      return vars.get(name);
-   }
-
-   /**
-    * Test if a variable exist.
-    * 
-    * @param name - the name of the variable.
-    * @return True if the variable exists.
-    */
-   public boolean containsVariable(String name)
-   {
-      return vars.containsKey(name);
-   }
-
-   /**
-    * @return All variables.
-    */
-   public Collection<Variable> getVariables()
-   {
-      return vars.values();
-   }
-
+   ModuleType moduleType;
    /**
     * @return The name of the module type.
     */
@@ -99,12 +52,13 @@ public class Module extends AbstractNamed
    public void setModuleType(ModuleType moduleType)
    {
       this.moduleType = moduleType;
-      init();
+      setupVariables(moduleType.getDeclarations());
    }
 
    /**
     * Execute the module's script once.
     */
+   @Override
    public void execute()
    {
       LOGGER.debug("Executing module {}", getName());
@@ -130,97 +84,5 @@ public class Module extends AbstractNamed
                var.setValue(writeCtx.get(varName));
          }
       }
-   }
-
-   /**
-    * @return The regular expression for testing names.
-    */
-   @Override
-   protected String getNameRegex()
-   {
-      return "^[a-zA-Z_][\\w\\.]*$";
-   }
-
-   /**
-    * Initialize the module.
-    */
-   protected void init()
-   {
-      final String varNamePrefix = getName() + '.';
-      Validate.notNull(moduleType);
-
-      vars.clear();
-      for (VariableDeclaration decl : moduleType.getDeclarations())
-      {
-         Variable var = new ModuleVariable(decl);
-         var.setName(varNamePrefix + decl.getName());
-
-         vars.put(var.getName(), var);
-
-         if (decl instanceof ModuleTypeInputConnector)
-            var.addListener(inputVariableChangedListener);
-      }
-   }
-
-   /**
-    * @return True if the module is scheduled for execution.
-    */
-   public boolean isScheduled()
-   {
-      return scheduled;
-   }
-
-   /**
-    * Schedule the module for execution. The module's execution happens after all other pending
-    * events are processed.
-    */
-   public synchronized void schedule()
-   {
-      if (!scheduled)
-      {
-         scheduled = true;
-         LOGGER.debug("Scheduling module {}", name);
-
-         Daemon.getInstance().getProcessor()
-            .invokeLater(order == null ? Processor.DEFAULT_PRIORITY : order, new Runnable()
-            {
-               @Override
-               public void run()
-               {
-                  Module.this.execute();
-                  scheduled = false;
-               }
-            });
-      }
-   }
-
-   /**
-    * A listener that gets informed when the value of an input variable changed.
-    */
-   private final VariableListener inputVariableChangedListener = new VariableListener()
-   {
-      @Override
-      public void valueChanged(Variable var)
-      {
-         schedule();
-      }
-   };
-
-   /**
-    * @return The order for execution.
-    */
-   public int getOrder()
-   {
-      return order == null ? 0 : order;
-   }
-
-   /**
-    * Set the order for execution.
-    * 
-    * @param order - the order to set
-    */
-   public void setOrder(int order)
-   {
-      this.order = order;
    }
 }

@@ -27,7 +27,7 @@ import org.selfbus.sbhome.service.Daemon;
 @XmlAccessorType(XmlAccessType.NONE)
 public class ModuleType extends AbstractNamed
 {
-   private final Map<String,VariableDeclaration> decls = new HashMap<String, VariableDeclaration>();
+   private final Map<String, VariableDeclaration> decls = new HashMap<String, VariableDeclaration>();
    private String code;
    private Script script;
 
@@ -50,7 +50,7 @@ public class ModuleType extends AbstractNamed
 
    /**
     * Set the script code.
-    *
+    * 
     * @param code - the code to set
     */
    public void setCode(String code)
@@ -82,21 +82,17 @@ public class ModuleType extends AbstractNamed
 
    /**
     * Set the contents of the object. This is a method that is meant for JAXB.
-    *
+    * 
     * @param lst - the contents
     */
-   @XmlElements
-   ({
-      @XmlElement(name = "input", type = ModuleTypeInputConnector.class),
+   @XmlElements({ @XmlElement(name = "input", type = ModuleTypeInputConnector.class),
       @XmlElement(name = "output", type = ModuleTypeOutputConnector.class),
-      @XmlElement(name = "variable", type = VariableDeclaration.class),
-      @XmlElement(name = "code", type = String.class)
-   })
+      @XmlElement(name = "variable", type = VariableDeclaration.class), @XmlElement(name = "code", type = String.class) })
    protected void setContents(List<Object> lst)
    {
       decls.clear();
 
-      for (Object obj: lst)
+      for (Object obj : lst)
       {
          if (obj instanceof String)
          {
@@ -113,6 +109,7 @@ public class ModuleType extends AbstractNamed
 
    /**
     * Get the contents of the object. This is a method that is meant for JAXB.
+    * 
     * @return The object's contents.
     */
    protected List<Object> getContents()
