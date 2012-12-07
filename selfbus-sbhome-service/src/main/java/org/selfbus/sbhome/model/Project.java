@@ -167,7 +167,6 @@ public class Project
       if (idx > 0)
       {
          String moduleName = name.substring(0, idx);
-         String varName = name.substring(idx + 1);
 
          AbstractModule module = getModule(moduleName);
          if (module != null && module.containsVariable(name))
