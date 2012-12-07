@@ -70,9 +70,6 @@ public class BooleanControl extends AbstractControl
          public void valueChanged(Variable group)
          {
             value = (Boolean) group.getValue();
-            if (value == null)
-               value = Boolean.FALSE;
-
             updateUI();
          }
       });
