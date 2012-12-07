@@ -11,6 +11,8 @@ import org.freebus.fts.common.address.GroupAddress;
 import org.selfbus.sbhome.model.Category;
 import org.selfbus.sbhome.model.base.Namespaces;
 import org.selfbus.sbhome.service.Daemon;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A group variable is a {@link Variable} that has an EIB group address. Changing the value of the
@@ -21,6 +23,8 @@ import org.selfbus.sbhome.service.Daemon;
 @XmlAccessorType(XmlAccessType.NONE)
 public class GroupVariable extends Variable
 {
+   private static final Logger LOGGER = LoggerFactory.getLogger(GroupVariable.class);
+
    private GroupAddress addr;
    private boolean read = true;
    private boolean write = true;
@@ -136,6 +140,9 @@ public class GroupVariable extends Variable
       super.setValue(value);
 
       if (write)
+      {
+         LOGGER.debug("{} -> telegram to {}", name, addr);
          Daemon.getInstance().sendTelegram(addr, getType(), getRawValue(), false);
+      }
    }
 }

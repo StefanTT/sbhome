@@ -32,14 +32,23 @@
     <![CDATA[ out = in1 || in2 ]]>
    </code>
   </moduleType>
+  <moduleType name="logic.not">
+   <input name="in" type="bool" />
+   <output name="out" type="bool" />
+   <code>
+    <![CDATA[ out = !in ]]>
+   </code>
+  </moduleType>
  </moduleTypes>
  <modules>
-  <module name="livingLightIndicator" type="logic.or" />
+  <module name="lli_combine" type="logic.or" order="10" />
+  <module name="lli_not" type="logic.not" order="8" />
  </modules>
  <connections>
-  <connection from="light1" to="livingLightIndicator.in1" />
-  <connection from="light3" to="livingLightIndicator.in2" />
-  <connection from="livingLightIndicator.out" to="livingLightIndicator" />
+  <connection from="light1" to="lli_combine.in1" />
+  <connection from="light1" to="lli_not.in" />
+  <connection from="lli_not.out" to="lli_combine.in2" />
+  <connection from="lli_combine.out" to="livingLightIndicator" />
  </connections>
  <rooms>
   <room id="living" label="Wohnzimmer">

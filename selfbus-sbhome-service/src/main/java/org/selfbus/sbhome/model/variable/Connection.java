@@ -20,6 +20,9 @@ public class Connection
    @XmlAttribute(required = true)
    private String to;
 
+   @XmlAttribute(required = false)
+   private Boolean triggerAlways;
+
    /**
     * @return the from
     */
@@ -50,5 +53,23 @@ public class Connection
    public void setTo(String to)
    {
       this.to = to;
+   }
+
+   /**
+    * @return True if the connection shall fire events even if the value did not change.
+    */
+   public boolean isTriggerAlways()
+   {
+      return triggerAlways == null ? false : triggerAlways;
+   }
+
+   /**
+    * Toggle if the connection shall fire events even if the value did not change.
+    * 
+    * @param enable - always fire events if true.
+    */
+   public void setTriggerAlways(boolean enable)
+   {
+      this.triggerAlways = enable;
    }
 }

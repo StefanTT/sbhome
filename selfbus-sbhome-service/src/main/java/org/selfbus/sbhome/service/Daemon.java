@@ -40,7 +40,7 @@ public class Daemon
    private Project project;
    private BusInterface busInterface;
    private final JexlEngine jexl = ScriptUtils.createJexlEngine();
-   private final EventDispatcher eventDispatcher = new EventDispatcher();
+   private final Processor processor = new Processor();
    private final Set<GroupTelegramListener> telegramListeners = new CopyOnWriteArraySet<GroupTelegramListener>();
 
    private final Queue<Telegram> telegramHistory = new ConcurrentLinkedQueue<Telegram>();
@@ -80,8 +80,8 @@ public class Daemon
          throw new RuntimeException(e);
       }
 
-      eventDispatcher.setProject(project);
-      eventDispatcher.start();
+      processor.setProject(project);
+      processor.start();
    }
 
    /**
@@ -122,13 +122,13 @@ public class Daemon
    }
 
    /**
-    * @return The event dispatcher.
+    * @return The work processor.
     * 
     * @see #invokeLater(Runnable)
     */
-   public EventDispatcher getEventDispatcher()
+   public Processor getProcessor()
    {
-      return eventDispatcher;
+      return processor;
    }
 
    /**
@@ -139,7 +139,7 @@ public class Daemon
     */
    public void invokeLater(Runnable doRun)
    {
-      eventDispatcher.invokeLater(doRun);
+      processor.invokeLater(doRun);
    }
 
    /**
@@ -357,7 +357,7 @@ public class Daemon
             var.setRawValue(app.getApciData(), !"noEvents".equals(telegram.getUserData()));
          }
 
-         eventDispatcher.invokeLater(new Runnable()
+         processor.invokeLater(new Runnable()
          {
             @Override
             public void run()
@@ -387,7 +387,7 @@ public class Daemon
             var.setRawValue(app.getApciData(), !"noEvents".equals(telegram.getUserData()));
          }
 
-         eventDispatcher.invokeLater(new Runnable()
+         processor.invokeLater(new Runnable()
          {
             @Override
             public void run()

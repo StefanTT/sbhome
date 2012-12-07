@@ -19,6 +19,7 @@ import org.selfbus.sbhome.model.variable.VariableDeclaration;
 import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
 import org.selfbus.sbhome.service.Daemon;
+import org.selfbus.sbhome.service.Processor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,6 +34,9 @@ public class Module extends AbstractNamed
 
    @XmlAttribute(name = "type", required = true)
    private String moduleTypeName;
+
+   @XmlAttribute(name = "order", required = false)
+   private Integer order;
 
    private ModuleType moduleType;
    private final Map<String, Variable> vars = new HashMap<String, Variable>();
@@ -104,7 +108,8 @@ public class Module extends AbstractNamed
    public void execute()
    {
       LOGGER.debug("Executing module {}", getName());
-      
+      String varNamePrefix = getName() + '.';
+
       JexlEngine jexl = Daemon.getInstance().getScriptEngine();
       synchronized (jexl)
       {
@@ -112,12 +117,7 @@ public class Module extends AbstractNamed
 
          Context readCtx = new Context();
          for (Variable var : vars.values())
-         {
-            if (var.getValue() == null)
-               var.initValue();
-
-            readCtx.set(var.getName(), var.getValue());
-         }
+            readCtx.set(var.getName().substring(varNamePrefix.length()), var.getValue());
 
          Context writeCtx = new Context(readCtx);
 
@@ -125,7 +125,7 @@ public class Module extends AbstractNamed
 
          for (String varName : writeCtx.localKeySet())
          {
-            Variable var = vars.get(varName);
+            Variable var = vars.get(varNamePrefix + varName);
             if (var != null)
                var.setValue(writeCtx.get(varName));
          }
@@ -146,12 +146,15 @@ public class Module extends AbstractNamed
     */
    protected void init()
    {
+      final String varNamePrefix = getName() + '.';
       Validate.notNull(moduleType);
 
       vars.clear();
       for (VariableDeclaration decl : moduleType.getDeclarations())
       {
-         Variable var = new Variable(decl);
+         Variable var = new ModuleVariable(decl);
+         var.setName(varNamePrefix + decl.getName());
+
          vars.put(var.getName(), var);
 
          if (decl instanceof ModuleTypeInputConnector)
@@ -176,16 +179,18 @@ public class Module extends AbstractNamed
       if (!scheduled)
       {
          scheduled = true;
+         LOGGER.debug("Scheduling module {}", name);
 
-         Daemon.getInstance().invokeLater(new Runnable()
-         {
-            @Override
-            public void run()
+         Daemon.getInstance().getProcessor()
+            .invokeLater(order == null ? Processor.DEFAULT_PRIORITY : order, new Runnable()
             {
-               Module.this.execute();
-               scheduled = false;
-            }
-         });
+               @Override
+               public void run()
+               {
+                  Module.this.execute();
+                  scheduled = false;
+               }
+            });
       }
    }
 
@@ -200,4 +205,22 @@ public class Module extends AbstractNamed
          schedule();
       }
    };
+
+   /**
+    * @return The order for execution.
+    */
+   public int getOrder()
+   {
+      return order == null ? 0 : order;
+   }
+
+   /**
+    * Set the order for execution.
+    * 
+    * @param order - the order to set
+    */
+   public void setOrder(int order)
+   {
+      this.order = order;
+   }
 }

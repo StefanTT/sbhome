@@ -169,8 +169,8 @@ public class Project
          String varName = name.substring(idx + 1);
 
          Module module = getModule(moduleName);
-         if (module != null && module.containsVariable(varName))
-            return module.getVariable(varName);
+         if (module != null && module.containsVariable(name))
+            return module.getVariable(name);
       }
 
       throw new IllegalArgumentException("Variable does not exist: " + name);

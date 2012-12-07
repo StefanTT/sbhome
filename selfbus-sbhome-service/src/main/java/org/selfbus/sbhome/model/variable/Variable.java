@@ -13,8 +13,8 @@ import org.freebus.fts.common.address.GroupAddress;
 import org.freebus.knxcomm.application.value.DataPointType;
 import org.freebus.knxcomm.application.value.GroupValueUtils;
 import org.selfbus.sbhome.model.base.AbstractNamed;
+import org.selfbus.sbhome.model.base.Named;
 import org.selfbus.sbhome.model.base.Namespaces;
-import org.selfbus.sbhome.service.Daemon;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,7 @@ public class Variable extends AbstractNamed implements VariableListener
 {
    private static final Logger LOGGER = LoggerFactory.getLogger(Variable.class);
 
+   private boolean modified;
    private DataPointType type;
    private Object value;
    private Set<VariableListener> listeners = new CopyOnWriteArraySet<VariableListener>();
@@ -81,6 +82,7 @@ public class Variable extends AbstractNamed implements VariableListener
    public void setType(DataPointType type)
    {
       this.type = type;
+      modified = false;
 
       if (value == null && type.getValueClass() != null)
          value = type.newValueObject();
@@ -113,15 +115,13 @@ public class Variable extends AbstractNamed implements VariableListener
     */
    public Object getValue()
    {
-      return value;
-   }
+      if (value == null)
+      {
+         value =  type.newValueObject();
+         modified = false;
+      }
 
-   /**
-    * Initialize the value. Does not trigger events.
-    */
-   public void initValue()
-   {
-      value = type.newValueObject();
+      return value;
    }
 
    /**
@@ -146,10 +146,12 @@ public class Variable extends AbstractNamed implements VariableListener
    {
       Validate.notNull(value);
 
-      if (value == this.value || value.equals(this.value))
+      LOGGER.debug("{} = {}", name, value);
+
+      if (modified && (value == this.value || value.equals(this.value)))
          return;
 
-      LOGGER.debug("{} = {}", name, value);
+      modified = true;
 
       Class<?> typeClass = type.getValueClass();
       if (typeClass != null && value.getClass() != typeClass)
@@ -161,16 +163,7 @@ public class Variable extends AbstractNamed implements VariableListener
       this.value = value;
 
       if (fireEvents && !listeners.isEmpty())
-      {
-         Daemon.getInstance().invokeLater(new Runnable()
-         {
-            @Override
-            public void run()
-            {
-               fireValueChanged();
-            }
-         });
-      }
+         fireValueChanged();
    }
 
    /**
@@ -231,11 +224,17 @@ public class Variable extends AbstractNamed implements VariableListener
    public void fireValueChanged()
    {
       for (VariableListener listener : listeners)
+      {
+         if (LOGGER.isDebugEnabled() && listener instanceof Named)
+            LOGGER.debug("{} -> {}", getName(), ((Named) listener).getName());
+
          listener.valueChanged(this);
+      }
    }
 
    /**
-    * The value of a variable has changed. Update this variable and fire all variable listeners.
+    * The value of a variable, which is connected to this variable, has changed. Update this
+    * variable and fire all variable listeners.
     * 
     * @param var - the variable who'se value has changed
     */

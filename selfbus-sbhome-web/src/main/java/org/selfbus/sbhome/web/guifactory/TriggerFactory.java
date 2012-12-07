@@ -16,6 +16,7 @@ import org.selfbus.sbhome.model.trigger.ValueChangeTriggerDecl;
 import org.selfbus.sbhome.model.variable.Variable;
 import org.selfbus.sbhome.model.variable.VariableListener;
 import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.web.SbHomeApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -197,10 +198,19 @@ public class TriggerFactory
          final SetVariableActionDecl gvAction = (SetVariableActionDecl) action;
 
          String varRef = gvAction.getName();
-         Variable group = (Variable) evaluator.eval(ctx, varRef);
-         Validate.notNull(group, "Unknown variable: " + varRef);
+         final Variable var = (Variable) evaluator.eval(ctx, varRef);
+         Validate.notNull(var, "Unknown variable: " + varRef);
 
-         group.setStringValue(gvAction.getValue());
+         final String value = gvAction.getValue();
+
+         Daemon.getInstance().getProcessor().invokeLater(1, new Runnable()
+         {
+            @Override
+            public void run()
+            {
+               var.setStringValue(value);
+            }
+         });
       }
       else if (action instanceof ChangeItemActionDecl)
       {
