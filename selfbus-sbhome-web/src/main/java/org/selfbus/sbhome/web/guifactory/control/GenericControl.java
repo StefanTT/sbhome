@@ -1,10 +1,10 @@
 package org.selfbus.sbhome.web.guifactory.control;
 
-import org.selfbus.sbhome.model.Item;
-import org.selfbus.sbhome.model.gui.ItemController;
-import org.selfbus.sbhome.model.variable.Variable;
-import org.selfbus.sbhome.model.variable.VariableListener;
-import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.model.Item;
+import org.selfbus.sbhome.service.model.gui.ItemController;
+import org.selfbus.sbhome.service.model.variable.Variable;
+import org.selfbus.sbhome.service.model.variable.VariableListener;
+import org.selfbus.sbhome.service.process.Context;
 import org.selfbus.sbhome.web.guifactory.Evaluator;
 
 import com.vaadin.terminal.Sizeable;

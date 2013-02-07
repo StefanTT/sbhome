@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<menubar id="MainMenu">
+ <menu id="File">
+  <action id="newProjectAction" />
+  <action id="openProjectAction" />
+  <action id="saveProjectAction" />
+  <separator />
+  <action id="exitAction" />
+ </menu>
+ <menu id="Settings">
+  <action id="settingsAction" />
+ </menu>
+ <menu id="Help">
+  <action id="aboutAction" />
+ </menu>
+</menubar>

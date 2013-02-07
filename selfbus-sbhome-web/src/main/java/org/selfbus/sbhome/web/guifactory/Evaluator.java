@@ -2,7 +2,7 @@ package org.selfbus.sbhome.web.guifactory;
 
 import org.apache.commons.jexl2.Expression;
 import org.apache.commons.jexl2.JexlEngine;
-import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.process.Context;
 
 /**
  * Class for evaluating expressions.

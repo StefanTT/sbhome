@@ -1,9 +1,9 @@
 package org.selfbus.sbhome.web.guifactory.component;
 
 import org.freebus.knxcomm.telegram.Telegram;
-import org.selfbus.sbhome.model.gui.TelegramHistoryDecl;
 import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.service.GroupTelegramListener;
+import org.selfbus.sbhome.service.model.gui.TelegramHistoryDecl;
 import org.selfbus.sbhome.web.misc.I18n;
 
 import com.vaadin.ui.AbstractComponent;

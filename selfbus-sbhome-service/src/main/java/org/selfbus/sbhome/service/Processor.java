@@ -4,7 +4,7 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.Semaphore;
 
-import org.selfbus.sbhome.model.Project;
+import org.selfbus.sbhome.service.model.Project;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

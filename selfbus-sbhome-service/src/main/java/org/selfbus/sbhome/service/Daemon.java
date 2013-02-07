@@ -21,11 +21,12 @@ import org.freebus.knxcomm.link.serial.SerialPortException;
 import org.freebus.knxcomm.telegram.Telegram;
 import org.freebus.knxcomm.telegram.TelegramListener;
 import org.freebus.knxcomm.types.LinkMode;
-import org.selfbus.sbhome.internal.I18n;
-import org.selfbus.sbhome.misc.ScriptUtils;
-import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.ProjectImporter;
-import org.selfbus.sbhome.model.variable.GroupVariable;
+import org.selfbus.sbhome.service.internal.I18n;
+import org.selfbus.sbhome.service.misc.Config;
+import org.selfbus.sbhome.service.misc.ScriptUtils;
+import org.selfbus.sbhome.service.model.Project;
+import org.selfbus.sbhome.service.model.ProjectImporter;
+import org.selfbus.sbhome.service.model.variable.GroupVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,18 +90,28 @@ public class Daemon
     */
    void setupBusInterface()
    {
-      //      final String portName = "/dev/ttyUSB0";
-      BusInterface iface;
+      BusInterface iface = null;
+
+      Config cfg = Config.getInstance();
+      String type = cfg.getStringValue("busInterface.type");
+
+      if ("ip".equals(type))
+      {
+         String host = cfg.getStringValue("busInterface.host");
+         int port = cfg.getIntValue("busInterface.port", KNXnetLink.defaultPortUDP);
+
+         iface = BusInterfaceFactory.newKNXnetInterface(host, port);
+         LOGGER.info("Using KNXnet/IP bus interface: {0} port {1}", host, port);
+      }
+      else
+      {
+         iface = BusInterfaceFactory.newDummyInterface();
+         LOGGER.info("Using dummy bus interface");
+      }
 
       try
       {
-         //iface = BusInterfaceFactory.newSerialInterface(portName);
-         //LOGGER.info("Using serial bus interface, port {}", portName);
-
-         iface = BusInterfaceFactory.newKNXnetInterface("localhost", KNXnetLink.defaultPortUDP);
          iface.open(LinkMode.BusMonitor);
-
-         LOGGER.info("Using KNXnet/IP bus interface");
       }
       catch (SerialPortException | IOException e)
       {

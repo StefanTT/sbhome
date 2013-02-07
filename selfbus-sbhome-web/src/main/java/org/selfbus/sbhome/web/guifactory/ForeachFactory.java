@@ -3,16 +3,16 @@ package org.selfbus.sbhome.web.guifactory;
 import java.util.List;
 import java.util.Vector;
 
-import org.selfbus.sbhome.misc.SortUtils;
-import org.selfbus.sbhome.model.Category;
-import org.selfbus.sbhome.model.Item;
-import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.Room;
-import org.selfbus.sbhome.model.gui.AbstractComponentDecl;
-import org.selfbus.sbhome.model.gui.generator.Foreach;
-import org.selfbus.sbhome.model.variable.GroupVariable;
-import org.selfbus.sbhome.model.variable.Variable;
-import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.misc.SortUtils;
+import org.selfbus.sbhome.service.model.Category;
+import org.selfbus.sbhome.service.model.Item;
+import org.selfbus.sbhome.service.model.Project;
+import org.selfbus.sbhome.service.model.Room;
+import org.selfbus.sbhome.service.model.gui.AbstractComponentDecl;
+import org.selfbus.sbhome.service.model.gui.generator.Foreach;
+import org.selfbus.sbhome.service.model.variable.GroupVariable;
+import org.selfbus.sbhome.service.model.variable.Variable;
+import org.selfbus.sbhome.service.process.Context;
 
 /**
  * A component creator that creates elements for a {@link Foreach} declaration.

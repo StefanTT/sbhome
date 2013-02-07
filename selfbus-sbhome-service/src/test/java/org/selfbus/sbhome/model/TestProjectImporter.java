@@ -11,9 +11,11 @@ import java.io.InputStream;
 
 import org.freebus.knxcomm.application.value.DataPointType;
 import org.junit.Test;
-import org.selfbus.sbhome.model.module.AbstractModule;
-import org.selfbus.sbhome.model.variable.GroupVariable;
-import org.selfbus.sbhome.model.variable.Variable;
+import org.selfbus.sbhome.service.model.Project;
+import org.selfbus.sbhome.service.model.ProjectImporter;
+import org.selfbus.sbhome.service.model.module.AbstractModule;
+import org.selfbus.sbhome.service.model.variable.GroupVariable;
+import org.selfbus.sbhome.service.model.variable.Variable;
 
 
 public class TestProjectImporter

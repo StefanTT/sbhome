@@ -1,7 +1,7 @@
 package org.selfbus.sbhome.web.guifactory;
 
-import org.selfbus.sbhome.model.gui.LayoutElement;
-import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.model.gui.LayoutElement;
+import org.selfbus.sbhome.service.process.Context;
 
 import com.vaadin.ui.AbstractComponent;
 

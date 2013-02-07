@@ -2,11 +2,11 @@ package org.selfbus.sbhome.web.guifactory;
 
 import org.apache.commons.lang3.Validate;
 import org.freebus.knxcomm.application.value.DataPointType;
-import org.selfbus.sbhome.model.Item;
-import org.selfbus.sbhome.model.Project;
-import org.selfbus.sbhome.model.gui.ItemController;
-import org.selfbus.sbhome.model.variable.Variable;
-import org.selfbus.sbhome.process.Context;
+import org.selfbus.sbhome.service.model.Item;
+import org.selfbus.sbhome.service.model.Project;
+import org.selfbus.sbhome.service.model.gui.ItemController;
+import org.selfbus.sbhome.service.model.variable.Variable;
+import org.selfbus.sbhome.service.process.Context;
 import org.selfbus.sbhome.web.guifactory.control.BooleanControl;
 import org.selfbus.sbhome.web.guifactory.control.GenericControl;
 import org.slf4j.Logger;

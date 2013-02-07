@@ -11,6 +11,36 @@
  <packaging>war</packaging>
  <name>Selfbus Home Server Web Frontend</name>
 
+ <build>
+  <plugins>
+   <plugin>
+    <artifactId>maven-assembly-plugin</artifactId>
+    <executions>
+     <execution>
+      <id>make zip</id>
+      <phase>package</phase>
+      <goals>
+       <goal>single</goal>
+      </goals>
+     </execution>
+    </executions>
+    <configuration>
+     <finalName>sbhome-web-${project.version}</finalName>
+     <ignorePermissions>false</ignorePermissions>
+     <appendAssemblyId>false</appendAssemblyId>
+     <archive>
+      <manifest>
+       <mainClass>selfbus.debugger.Main</mainClass>
+      </manifest>
+     </archive>
+     <descriptors>
+      <descriptor>assembly.xml</descriptor>
+     </descriptors>
+    </configuration>
+   </plugin>
+  </plugins>
+ </build>
+
  <dependencies>
   <dependency>
    <groupId>org.selfbus.sbhome</groupId>
