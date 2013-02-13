@@ -38,8 +38,8 @@
   <module name="my.and" type = "logic.and" />
  </modules>
  <connections>
-  <connection from="b1" to="logic.and.1.in1" />
-  <connection from="b2" to="logic.and.1.in1" />
+  <connection from="b1" to="my.and.in1" />
+  <connection from="b2" to="my.and.in1" />
   <connection from="my.and.out" to="b3" />
  </connections>
  <rooms>

@@ -168,10 +168,11 @@ public class Project
       if (idx > 0)
       {
          String moduleName = name.substring(0, idx);
+         String varName = name.substring(idx + 1);
 
          AbstractModule module = getModule(moduleName);
-         if (module != null && module.containsVariable(name))
-            return module.getVariable(name);
+         if (module != null && module.containsVariable(varName))
+            return module.getVariable(varName);
       }
 
       throw new IllegalArgumentException("Variable does not exist: " + name);

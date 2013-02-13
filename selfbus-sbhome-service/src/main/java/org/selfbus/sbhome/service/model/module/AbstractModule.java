@@ -132,7 +132,7 @@ public abstract class AbstractModule extends AbstractNamed
          ModuleVariable var = new ModuleVariable(decl);
          var.setName(varNamePrefix + decl.getName());
 
-         vars.put(var.getName(), var);
+         vars.put(decl.getName(), var);
 
          if (decl instanceof ModuleTypeInputConnector)
          {

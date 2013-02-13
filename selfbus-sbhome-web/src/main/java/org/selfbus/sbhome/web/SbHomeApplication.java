@@ -102,7 +102,7 @@ public class SbHomeApplication extends Application
    {
       setTheme("sbhome-black");
 
-      final Daemon daemon = Daemon.getInstance();
+      final Daemon daemon = new Daemon("example-project.xml");
       project = daemon.getProject();
 
       componentFactory = new ComponentFactory(project, this, evaluator);

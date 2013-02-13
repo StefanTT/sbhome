@@ -36,7 +36,6 @@ import org.selfbus.sbhome.designer.window.XmlToolBarFactory;
 import org.selfbus.sbhome.service.Daemon;
 import org.selfbus.sbhome.service.misc.Config;
 import org.selfbus.sbhome.service.model.Project;
-import org.selfbus.sbhome.service.model.ProjectImporter;
 import org.selfbus.sbhome.service.model.Room;
 import org.selfbus.sbhome.service.model.module.ModuleType;
 import org.selfbus.sbhome.service.model.variable.GroupVariable;
@@ -188,6 +187,7 @@ public class Designer extends SingleFrameApplication
       JScrollPane scpCategories = new JScrollPane(accCategories);
       scpCategories.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
       scpCategories.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+      scpCategories.setMinimumSize(new Dimension(200, 200));
 
       spMain.setDividerLocation(200);
       spMain.setLeftComponent(scpCategories);
@@ -243,8 +243,10 @@ public class Designer extends SingleFrameApplication
             {
                LOGGER.debug("Loading project {}", fileName);
 
-               ProjectImporter importer = new ProjectImporter();
-               project = importer.readProject(in);
+               Daemon daemon = Daemon.getInstance();
+               daemon.loadProject(fileName);
+
+               project = daemon.getProject();
                projectFileName = fileName;
             }
             catch (Exception e)
@@ -335,7 +337,7 @@ public class Designer extends SingleFrameApplication
       Validate.notNull(clazz);
       Validate.notNull(obj);
 
-      LOGGER.debug("Editing {}: {}", clazz.toString(), obj.toString());
+      LOGGER.debug("Editing {} with {}", obj.toString(), clazz.getSimpleName());
 
       if (editor != null && editor.getClass() == clazz && editor.getObject() == obj)
          return;

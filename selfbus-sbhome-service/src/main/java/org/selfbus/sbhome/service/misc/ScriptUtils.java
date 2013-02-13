@@ -26,8 +26,9 @@ public class ScriptUtils
       JexlEngine jexl = new JexlEngine(uber, null, null, null);
 
       jexl.setCache(256);
-      jexl.setLenient(false);
+      jexl.setStrict(true);
       jexl.setSilent(false);
+      jexl.setDebug(true);
 
       return jexl;
    }

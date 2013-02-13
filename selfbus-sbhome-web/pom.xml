@@ -8,11 +8,27 @@
   <relativePath>..</relativePath>
  </parent>
  <artifactId>selfbus-sbhome-web</artifactId>
- <packaging>war</packaging>
  <name>Selfbus Home Server Web Frontend</name>
 
  <build>
   <plugins>
+   <plugin>
+    <artifactId>maven-jar-plugin</artifactId>
+    <version>2.3</version>
+    <configuration>
+     <finalName>selfbus-sbhome-web</finalName>
+     <archive>
+      <manifest>
+       <addClasspath>true</addClasspath>
+       <mainClass>org.selfbus.sbhome.web.Launcher</mainClass>
+      </manifest>
+      <manifestEntries>
+       <SCM-Revision>${buildNumber}</SCM-Revision>
+       <Version>${project.version}</Version>
+      </manifestEntries>
+     </archive>
+    </configuration>
+   </plugin>
    <plugin>
     <artifactId>maven-assembly-plugin</artifactId>
     <executions>
@@ -51,6 +67,43 @@
    <groupId>com.vaadin</groupId>
    <artifactId>vaadin</artifactId>
    <version>6.8.5</version>
+  </dependency>
+  <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>log4j-over-slf4j</artifactId>
+   <version>1.7.2</version>
+  </dependency>
+  <dependency>
+   <groupId>org.slf4j</groupId>
+   <artifactId>jul-to-slf4j</artifactId>
+  </dependency>
+  <dependency>
+   <groupId>org.eclipse.jetty</groupId>
+   <artifactId>jetty-runner</artifactId>
+   <version>9.0.0.RC0</version>
+  </dependency>
+  <dependency>
+   <groupId>org.eclipse.jetty</groupId>
+   <artifactId>jetty-jsp</artifactId>
+   <version>9.0.0.RC0</version>
+  </dependency>
+  <dependency>
+   <groupId>javax.servlet</groupId>
+   <artifactId>servlet-api</artifactId>
+   <version>2.5</version>
+   <type>jar</type>
+   <scope>provided</scope>
+  </dependency>
+  <dependency>
+   <groupId>javax.servlet.jsp</groupId>
+   <artifactId>jsp-api</artifactId>
+   <version>2.2</version>
+   <type>jar</type>
+   <scope>provided</scope>
+  </dependency>
+  <dependency>
+   <groupId>ch.qos.logback</groupId>
+   <artifactId>logback-classic</artifactId>
   </dependency>
  </dependencies>
 

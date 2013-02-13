@@ -26,24 +26,18 @@
    <input name="in1" type="bool" />
    <input name="in2" type="bool" />
    <output name="out" type="bool" />
-   <code>
-    <![CDATA[ out = in1 && in2 ]]>
-   </code>
+   <code><![CDATA[ out = in1 && in2 ]]></code>
   </moduleType>
   <moduleType name="logic.or">
    <input name="in1" type="bool" />
    <input name="in2" type="bool" />
    <output name="out" type="bool" />
-   <code>
-    <![CDATA[ out = in1 || in2 ]]>
-   </code>
+   <code><![CDATA[ out = in1 || in2 ]]></code>
   </moduleType>
   <moduleType name="logic.not">
    <input name="in" type="bool" />
    <output name="out" type="bool" />
-   <code>
-    <![CDATA[ out = !in ]]>
-   </code>
+   <code><![CDATA[ out = !in ]]></code>
   </moduleType>
  </moduleTypes>
  <modules>

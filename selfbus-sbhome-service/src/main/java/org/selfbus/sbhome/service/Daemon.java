@@ -64,12 +64,25 @@ public class Daemon
     * 
     * @see #getInstance()
     */
-   Daemon()
+   public Daemon()
    {
       daemon = this;
 
       LOGGER.debug("Daemon created");
       setupBusInterface();
+      processor.start();
+   }
+
+   /**
+    * Create a daemon instance.
+    * 
+    * @param projectName - the name of the project file
+    *
+    * @see #getInstance()
+    */
+   public Daemon(String projectName)
+   {
+      this();
 
       try
       {
@@ -80,9 +93,6 @@ public class Daemon
          LOGGER.error("failed to load project.xml file", e);
          throw new RuntimeException(e);
       }
-
-      processor.setProject(project);
-      processor.start();
    }
 
    /**
@@ -259,6 +269,7 @@ public class Daemon
     */
    protected void postLoadProject()
    {
+      processor.setProject(project);
    }
 
    /**

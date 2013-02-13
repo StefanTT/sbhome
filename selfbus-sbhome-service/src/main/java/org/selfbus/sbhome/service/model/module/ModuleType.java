@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -78,6 +79,14 @@ public class ModuleType extends AbstractNamed
    public Collection<VariableDeclaration> getDeclarations()
    {
       return decls.values();
+   }
+
+   /**
+    * @return The names of the variable declarations.
+    */
+   public Set<String> getDeclarationNames()
+   {
+      return decls.keySet();
    }
 
    /**

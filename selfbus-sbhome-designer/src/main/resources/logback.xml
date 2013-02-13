@@ -7,10 +7,10 @@
   </encoder>
  </appender>
 
- <!-- <logger name="org.springframework" level="debug" /> -->
  <logger name="org.freebus" level="debug" />
+ <logger name="org.selfbus" level="debug" />
 
- <root level="debug">
+ <root level="info">
   <appender-ref ref="STDOUT" />
  </root>
 </configuration>

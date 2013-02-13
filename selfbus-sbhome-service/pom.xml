@@ -5,12 +5,14 @@
   <artifactId>selfbus-sbhome</artifactId>
   <groupId>org.selfbus.sbhome</groupId>
   <version>0.1-SNAPSHOT</version>
+  <relativePath>..</relativePath>
  </parent>
  <artifactId>selfbus-sbhome-service</artifactId>
  <name>Selfbus Home Server Backend</name>
 
  <build>
   <plugins>
+
    <!-- If m2eclipse complains about this plugin, you probably have to install the "m2e Connector for JAXB" from https://github.com/hwellmann/m2eclipse-extras/raw/master/p2 -->
    <plugin>
     <groupId>org.codehaus.mojo</groupId>
@@ -42,8 +44,17 @@
   </dependency>
   <dependency>
    <groupId>org.freebus.fts</groupId>
+   <artifactId>freebus-fts-common</artifactId>
+   <version>0.2-SNAPSHOT</version>
+   <scope>system</scope>
+   <systemPath>${basedir}/../contrib/freebus-fts-common-0.2-SNAPSHOT.jar</systemPath>
+  </dependency>
+  <dependency>
+   <groupId>org.freebus.fts</groupId>
    <artifactId>freebus-fts-knxcomm</artifactId>
    <version>0.2-SNAPSHOT</version>
+   <scope>system</scope>
+   <systemPath>${basedir}/../contrib/freebus-fts-knxcomm-0.2-SNAPSHOT.jar</systemPath>
   </dependency>
  </dependencies>
 
