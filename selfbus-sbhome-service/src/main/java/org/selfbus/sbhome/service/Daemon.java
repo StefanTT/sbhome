@@ -1,5 +1,6 @@
 package org.selfbus.sbhome.service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +40,8 @@ public class Daemon
    private static Daemon daemon = null;
 
    private Project project;
+   private String projectFileName;
+
    private BusInterface busInterface;
    private final JexlEngine jexl = ScriptUtils.createJexlEngine();
    private final Processor processor = new Processor();
@@ -76,17 +79,17 @@ public class Daemon
    /**
     * Create a daemon instance.
     * 
-    * @param projectName - the name of the project file
+    * @param projectFileName - the name of the project file
     *
     * @see #getInstance()
     */
-   public Daemon(String projectName)
+   public Daemon(String projectFileName)
    {
       this();
 
       try
       {
-         loadProject("example-project.xml");
+         loadProject(projectFileName);
       }
       catch (FileNotFoundException e)
       {
@@ -258,6 +261,7 @@ public class Daemon
 
       ProjectImporter importer = new ProjectImporter();
       project = importer.readProject(in);
+      projectFileName = fileName;
 
       postLoadProject();
    }
@@ -270,6 +274,14 @@ public class Daemon
    protected void postLoadProject()
    {
       processor.setProject(project);
+   }
+
+   /**
+    * @return The project file.
+    */
+   public File getProjectFile()
+   {
+      return projectFileName == null ? null : new File(projectFileName);
    }
 
    /**

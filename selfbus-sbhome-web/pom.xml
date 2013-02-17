@@ -19,8 +19,8 @@
      <finalName>selfbus-sbhome-web</finalName>
      <archive>
       <manifest>
-       <addClasspath>true</addClasspath>
-       <mainClass>org.selfbus.sbhome.web.Launcher</mainClass>
+       <addClasspath>false</addClasspath>
+       <mainClass>org.selfbus.sbhome.web.WebServer</mainClass>
       </manifest>
       <manifestEntries>
        <SCM-Revision>${buildNumber}</SCM-Revision>
@@ -33,7 +33,7 @@
     <artifactId>maven-assembly-plugin</artifactId>
     <executions>
      <execution>
-      <id>make zip</id>
+      <id>package</id>
       <phase>package</phase>
       <goals>
        <goal>single</goal>
@@ -44,11 +44,6 @@
      <finalName>sbhome-web-${project.version}</finalName>
      <ignorePermissions>false</ignorePermissions>
      <appendAssemblyId>false</appendAssemblyId>
-     <archive>
-      <manifest>
-       <mainClass>selfbus.debugger.Main</mainClass>
-      </manifest>
-     </archive>
      <descriptors>
       <descriptor>assembly.xml</descriptor>
      </descriptors>
@@ -78,32 +73,19 @@
    <artifactId>jul-to-slf4j</artifactId>
   </dependency>
   <dependency>
-   <groupId>org.eclipse.jetty</groupId>
-   <artifactId>jetty-runner</artifactId>
-   <version>9.0.0.RC0</version>
-  </dependency>
-  <dependency>
-   <groupId>org.eclipse.jetty</groupId>
-   <artifactId>jetty-jsp</artifactId>
-   <version>9.0.0.RC0</version>
-  </dependency>
-  <dependency>
    <groupId>javax.servlet</groupId>
    <artifactId>servlet-api</artifactId>
    <version>2.5</version>
-   <type>jar</type>
-   <scope>provided</scope>
-  </dependency>
-  <dependency>
-   <groupId>javax.servlet.jsp</groupId>
-   <artifactId>jsp-api</artifactId>
-   <version>2.2</version>
-   <type>jar</type>
    <scope>provided</scope>
   </dependency>
   <dependency>
    <groupId>ch.qos.logback</groupId>
    <artifactId>logback-classic</artifactId>
+  </dependency>
+  <dependency>
+   <groupId>org.jboss.resteasy</groupId>
+   <artifactId>tjws</artifactId>
+   <version>3.0-beta-2</version>
   </dependency>
  </dependencies>
 

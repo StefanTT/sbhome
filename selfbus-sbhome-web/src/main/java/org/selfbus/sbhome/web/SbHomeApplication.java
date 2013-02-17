@@ -135,7 +135,7 @@ public class SbHomeApplication extends Application
          public void windowClose(CloseEvent e)
          {
             // The user closed the window or left the page
-            LOGGER.info("window closed");
+            LOGGER.debug("window closed");
 
             // TODO unregister all triggers of the closed window
          }

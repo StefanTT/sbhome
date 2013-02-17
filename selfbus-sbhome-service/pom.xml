@@ -27,7 +27,7 @@
       <phase>generate-sources</phase>
       <configuration>
        <includes>
-        <include>org/selfbus/sbhome/model/*.java</include>
+        <include>org/selfbus/sbhome/service/model/*.java</include>
        </includes>
       </configuration>
      </execution>
